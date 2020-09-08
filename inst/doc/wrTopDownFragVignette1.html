@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Wolfgang Raffelsberger" />
+
+<meta name="date" content="2020-09-01" />
+
+<title>Getting started with wrTopDownFrag</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 800px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 20px;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 0;
+padding: 4px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table:not([class]) {
+margin: auto;
+min-width: 40%;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table[summary="R argblock"] {
+width: 100%;
+border: none;
+}
+table:not([class]) th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table:not([class]) td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table:not([class]), table:not([class]) th, table:not([class]) td {
+border-left-style: none;
+border-right-style: none;
+}
+table:not([class]) tr.odd {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 13px;
+padding-bottom: 1px;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f5f5f5;
+border-radius: 3px;
+color: #333;
+}
+pre {
+overflow-x: auto;
+border-radius: 3px;
+margin: 5px 0 10px 0;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: white;
+border: #f5f5f5 1px solid;
+}
+pre:not([class]) code {
+color: #444;
+background-color: white;
+}
+code {
+font-family: monospace;
+font-size: 90%;
+}
+p > code, li > code {
+padding: 2px 4px;
+color: #d14;
+border: 1px solid #e1e1e8;
+white-space: inherit;
+}
+div.figure {
+text-align: center;
+}
+table > caption, div.figure p.caption {
+font-style: italic;
+}
+table > caption span, div.figure p.caption span {
+font-style: normal;
+font-weight: bold;
+}
+p {
+margin: 0 0 10px;
+}
+table:not([class]) {
+margin: auto auto 10px auto;
+}
+img:not([class]) {
+background-color: #FFFFFF;
+padding: 2px;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+max-width: 100%;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f5f5f5;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f5f5f5;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f5f5f5;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+div.r-help-page {
+background-color: #f9f9f9;
+border-bottom: #ddd 1px solid;
+margin-bottom: 10px;
+padding: 10px;
+}
+div.r-help-page:hover {
+background-color: #f4f4f4;
+}
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting started with wrTopDownFrag</h1>
+<h4 class="author">Wolfgang Raffelsberger</h4>
+<h4 class="date">2020-09-01</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#nomenclature">Nomenclature</a></li>
+<li><a href="#obtaining-molecular-mass-for-chemical-structures-using-wrproteo">Obtaining Molecular Mass For Chemical Structures (using wrProteo)</a>
+<ul>
+<li><a href="#molecular-mass-of-peptides-and-proteins">Molecular mass of peptides and proteins</a></li>
+</ul></li>
+<li><a href="#fragmenting-a-peptideprotein--sequence">Fragmenting a Peptide/Protein -Sequence</a>
+<ul>
+<li><a href="#fragmenting-a-protein-sequence">Fragmenting a protein sequence</a></li>
+</ul></li>
+<li><a href="#fixed-and-variable-modifications">Fixed And Variable Modifications</a></li>
+<li><a href="#basic-identification-including-fixed-modifications">Basic Identification Including Fixed Modifications</a>
+<ul>
+<li><a href="#tolerance">Tolerance</a></li>
+<li><a href="#identification-example">Identification Example</a></li>
+</ul></li>
+<li><a href="#acknowledgements">Acknowledgements</a></li>
+<li><a href="#appendix-session-info">Appendix: Session-Info</a></li>
+</ul>
+</div>
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>This package contains tools for the use in <a href="https://en.wikipedia.org/wiki/Top-down_proteomics">TopDown Proteomics</a>. Proteomics is referred to the technique of idenifying all proteins in a given sample. Typically this is done by using <a href="https://en.wikipedia.org/wiki/Mass_spectrometry">mass spectrometry</a>. This technqiue returns primarily ‘m/z’ (mass over charge) measures, in most cases this can be resolved to molecular masses.</p>
+<p>Since mass spectrometry is rather well suited to identifying small molecules, it has become common practice to first digest proteins into smaller units (ie peptides), which can be easily identified by mass spetrometry. This technique is referred to as <strong>“bottom-up” proteomics</strong>. Further high energy fragmentation of proteins or peptides directly within the mass spetrometer also helps very much improving the identification rate (MS-MS or MS2).</p>
+<p>To overcome some of the drawbacks associated with the bottom-up approach, more recent developments of mass spectrometers allow the identification of full length proteins (from samples with few proteins). This approach is called <strong>“top-down proteomics”</strong> (see also <a href="https://doi.org/10.1021/acs.analchem.7b04747">Chen et al, 2018</a>, <a href="https://doi.org/10.1038/nchembio.2515">Skinner et al, 2018</a> or <a href="https://doi.org/10.1038/nchem.2908">Li et al, 2018</a>). In this context high energy random fragmentation of proteins/peptides within the mass spectrometer plays an important role, too. This approach produces fragments conainting on of the original start/end-sites (terminal fragments) and, depending on the energy settings, furher internal fragments. Of course, larger parent proteins/peptides will give even more complex patterns of internal fragments. The pattern of resulting fragments for a given precursor protein/peptide allows better identification and provides further valuable information about the (3-dimensional) conformation of the initial proteins (see also <a href="https://doi.org/10.1007/s13361-017-1635-x">Haverland et al, 2017</a>).</p>
+<p>This project got started to help analyzing internal fragments from <a href="https://en.wikipedia.org/wiki/Fourier-transform_ion_cyclotron_resonance">FT-ICR mass-spectrometry</a>. At the time of beginning none or only very limited tools were available for this task (this situation is changing since 2019). Since there is already software available for transforming initial lists of m/z values into monoisotopic values, the aim was to continue further to the identification of m/z peaks after a deconvolution step to assign the most likely peptide/proptein sequence. Please refer eg to <a href="https://en.wikipedia.org/wiki/Monoisotopic_mass">Wikipedia: monoisotopic mass</a> for details on molecular mass and deconvolution. Initial developments were performed based on data from <a href="https://en.wikipedia.org/wiki/Fourier-transform_ion_cyclotron_resonance">FT-ICR mass-spectrometry</a>, but the overal concept may be applied to any kind of mass-spectrometry data.</p>
+<p>When developing this package particular attention was brought to the fact that entire proteins may very well still carry embedded ions in catalytic cores or other rare modifications. With the tools pesented here, the link between parent- and children fragments was not further taken into account since we did not expect 100 percent pure parent species entering the fragmentation step.</p>
+<p>In summary, this package aims to provide tools for the identification of proteins from monoisotopic m/z lists, and in particular, to consider and identify all possible internal fragments resulting from fragmentation performed during mass-spectromery analysis.</p>
+<p>To get started, we need to load the packages <a href="https://CRAN.R-project.org/package=wrMisc">wrMisc</a> and <a href="https://CRAN.R-project.org/package=wrProteo">wrProteo</a>, available from <a href="https://cran.r-project.org/">CRAN</a>. And of course we need to charge this package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(wrMisc)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(wrProteo)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(wrTopDownFrag)</span></code></pre></div>
+<p>Further information about the package versions used for making this vignette can be found in the appendix ‘Session-info’.</p>
+<p>For manipulating peptide/protein sequences we will use functions for working with one-letter code amino-acid sequences provided by package <a href="https://CRAN.R-project.org/package=wrProteo">wrProteo</a>.</p>
+</div>
+<div id="nomenclature" class="section level2">
+<h2>Nomenclature</h2>
+<p>This describes how chemical modifications on amino-acids (like oxygenation) are abbreviated and what exact chemical modification it referrs to. In term of nomenclature we’ll stick to these abbreviations :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">## common settings</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">str</span>(<span class="kw">AAfragSettings</span>())</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt; List of 4</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt;  $ knownMods        :List of 9</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt;   ..$ noMod   : chr &quot;&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt;   ..$ Nterm   : chr [1:3] &quot;a&quot; &quot;b&quot; &quot;c&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt;   ..$ Cterm   : chr [1:3] &quot;x&quot; &quot;y&quot; &quot;z&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt;   ..$ NCterm  : chr [1:2] &quot;d&quot; &quot;i&quot;</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt;   ..$ any     : NULL</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt;   ..$ intern  : chr [1:8] &quot;a&quot; &quot;b&quot; &quot;c&quot; &quot;f&quot; ...</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt;   ..$ spcAA   : chr [1:9] &quot;p&quot; &quot;h&quot; &quot;k&quot; &quot;o&quot; ...</span></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt;   ..$ spcNterm: chr [1:2] &quot;g&quot; &quot;n&quot;</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt;   ..$ spcCterm: chr &quot;u&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt;  $ specAAMod        :List of 9</span></span>
+<span id="cb2-15"><a href="#cb2-15"></a><span class="co">#&gt;   ..$ p: chr [1:3] &quot;T&quot; &quot;S&quot; &quot;Y&quot;</span></span>
+<span id="cb2-16"><a href="#cb2-16"></a><span class="co">#&gt;   ..$ h: chr [1:4] &quot;S&quot; &quot;T&quot; &quot;E&quot; &quot;D&quot;</span></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co">#&gt;   ..$ k: chr [1:4] &quot;Q&quot; &quot;K&quot; &quot;R&quot; &quot;N&quot;</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a><span class="co">#&gt;   ..$ o: chr &quot;M&quot;</span></span>
+<span id="cb2-19"><a href="#cb2-19"></a><span class="co">#&gt;   ..$ r: chr &quot;C&quot;</span></span>
+<span id="cb2-20"><a href="#cb2-20"></a><span class="co">#&gt;   ..$ s: chr &quot;S&quot;</span></span>
+<span id="cb2-21"><a href="#cb2-21"></a><span class="co">#&gt;   ..$ m: chr [1:2] &quot;R&quot; &quot;K&quot;</span></span>
+<span id="cb2-22"><a href="#cb2-22"></a><span class="co">#&gt;   ..$ n: chr &quot;Q&quot;</span></span>
+<span id="cb2-23"><a href="#cb2-23"></a><span class="co">#&gt;   ..$ u: chr &quot;R&quot;</span></span>
+<span id="cb2-24"><a href="#cb2-24"></a><span class="co">#&gt;  $ modChem          : chr [1:22, 1:2] &quot;&quot; &quot;a&quot; &quot;b&quot; &quot;c&quot; ...</span></span>
+<span id="cb2-25"><a href="#cb2-25"></a><span class="co">#&gt;   ..- attr(*, &quot;dimnames&quot;)=List of 2</span></span>
+<span id="cb2-26"><a href="#cb2-26"></a><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span id="cb2-27"><a href="#cb2-27"></a><span class="co">#&gt;   .. ..$ : chr [1:2] &quot;ty&quot; &quot;mod&quot;</span></span>
+<span id="cb2-28"><a href="#cb2-28"></a><span class="co">#&gt;  $ neutralLossOrGain: chr [1:7] &quot;b&quot; &quot;d&quot; &quot;f&quot; &quot;h&quot; ...</span></span></code></pre></div>
+<p>Here we can see that ‘a’,‘b’ and ‘c’-ions are grouped as ‘Nterm’ or that the phosporylation modification ‘p’ is taken into consideration at ‘S’,‘T’ or ‘Y’ amino-acid residues. The section <strong>$modChem</strong> describes/defines exactely how many molecules will be added or removed with the various modifications available in this package.</p>
+<p>Molecular (mono-isotopic) masses of the atomes used here are taken the package <a href="https://CRAN.R-project.org/package=wrProteo">wrProteo</a>, intially they were taken from <a href="http://www.unimod.org/masses.html">Unimod</a>. They can be easily updated, if in the future, (mono-isotopic) molecular masses will be determined with higher precision (ie more digits).</p>
+</div>
+<div id="obtaining-molecular-mass-for-chemical-structures-using-wrproteo" class="section level2">
+<h2>Obtaining Molecular Mass For Chemical Structures (using wrProteo)</h2>
+<p>The package <a href="https://CRAN.R-project.org/package=wrProteo">wrProteo</a> is used to convert summed chemical formulas into molecular mass.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># Standard way to obtain the (monoisotopic) mass of water (H20) or a phosphorylation (PO3)</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co"># Note that the number a molecule appears must be written in front of the molecule (no number means one occurance)</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="kw">massDeFormula</span>(<span class="kw">c</span>(<span class="st">&quot;2HO&quot;</span>, <span class="st">&quot;P3O&quot;</span>))</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt;     2H1O     1P3O </span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt; 18.01056 78.95851</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co"># Undereith this runs (for H20):</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="dv">2</span><span class="op">*</span><span class="kw">.atomicMasses</span>()[<span class="st">&quot;H&quot;</span>,<span class="st">&quot;mono&quot;</span>] <span class="op">+</span><span class="kw">.atomicMasses</span>()[<span class="st">&quot;O&quot;</span>,<span class="st">&quot;mono&quot;</span>]   <span class="co"># H2O</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt; [1] 18.01056</span></span></code></pre></div>
+<p>Atomic masses can be calulated either as ‘average mass’ or ‘monoisotopic mass’ (<a href="https://en.wikipedia.org/wiki/Monoisotopic_mass">Wikipedia: monoisotopic mass</a>), the latter is commonly used in mass-spectrometry and will be used by default in this package.</p>
+<div id="molecular-mass-of-peptides-and-proteins" class="section level3">
+<h3>Molecular mass of peptides and proteins</h3>
+<p>At this level we can compute the expected mass of uncharged proteins/peptides as defined by their size. Of couse, protein isomers (ie same total composition but different sequence) get the same mass.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># Let&#39;s define two small amino-acid sequences </span></span>
+<span id="cb4-2"><a href="#cb4-2"></a>protP &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">pepK=</span><span class="st">&quot;KPEPTIDRPEP&quot;</span>, <span class="dt">pepC=</span><span class="st">&quot;CEPEPTRT&quot;</span>, <span class="dt">pepC2=</span><span class="st">&quot;PECEPTRT&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co"># The sequence converted to mass  </span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="kw">convAASeq2mass</span>(protP)   </span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; KPEPTIDRPEP    CEPEPTRT    PECEPTRT </span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="co">#&gt;   1277.6616    931.4069    931.4069</span></span></code></pre></div>
+<p>As mentinned, this package assumes that experimental values have already been deconvoluted, ie that only the mono-charged peak provided and isotopic patterns have been reduced to the main representative isotope. In line with this assumption, default predictions are mono-isotopic masses.</p>
+</div>
+</div>
+<div id="fragmenting-a-peptideprotein--sequence" class="section level2">
+<h2>Fragmenting a Peptide/Protein -Sequence</h2>
+<p>With ‘Fragmentation’ techniques we refer to technqiues like shooting electrons or IR-waves allowing to break larger molecules into smaller molecules (of different composition). In order to check if fragmentation yields random cleavage or raher directed distribution of cleavage sites, it is necessary to predict all possible cleavage sites.</p>
+<p>The complexity of this simple task increases about exponentially with protein size. At this level, the complexity increases so much, that only a few (longer) full length proteins can be treated at once within a reasonable amount of time. With large proteins (more than 600 aa length) this may consume considerable amounts of RAM. When designing this package care has been taken to run infractructure intensive as efficent as possible, but working with complex samples/proteomes it is still beyond technical limits.</p>
+<p>Here a very simplified view on the theoretical number of terminal and internal fragments. Fixed modifications do not change the number of expected fragments Note, that this simplification does not include variable modifications (see also the next section).</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>marks &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">name=</span><span class="kw">c</span>(<span class="st">&quot;Ubiquitin</span><span class="ch">\n</span><span class="st">76aa&quot;</span>,<span class="st">&quot;Glutamate dehydrogenase 1</span><span class="ch">\n</span><span class="st">501aa&quot;</span>),<span class="dt">length=</span><span class="kw">c</span>(<span class="dv">76</span>,<span class="dv">501</span>))</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">layout</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>,<span class="dt">ncol=</span><span class="dv">2</span>))</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="kw">plotNTheor</span>(<span class="dt">x=</span><span class="dv">20</span><span class="op">:</span><span class="dv">750</span>, <span class="dt">log=</span><span class="st">&quot;&quot;</span>, <span class="dt">mark=</span>marks)</span>
+<span id="cb5-4"><a href="#cb5-4"></a><span class="kw">plotNTheor</span>(<span class="dt">x=</span><span class="dv">20</span><span class="op">:</span><span class="dv">750</span>, <span class="dt">log=</span><span class="st">&quot;xy&quot;</span>, <span class="dt">mark=</span>marks)</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="kw">mtext</span>(<span class="st">&quot;log/log scale&quot;</span>, <span class="dt">cex=</span><span class="fl">0.8</span>, <span class="dt">line=</span><span class="fl">0.1</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="150%" /></p>
+<div id="fragmenting-a-protein-sequence" class="section level3">
+<h3>Fragmenting a protein sequence</h3>
+<p>Random cleavege for a sample collection of proteins can be obtained using the functions  or </p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>protP &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">pepK=</span><span class="st">&quot;KPEPTIDRPEP&quot;</span>, <span class="dt">pepC=</span><span class="st">&quot;CEPEPTRT&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co">## Basic output </span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="kw">fragmentSeq</span>(protP[<span class="dv">1</span>], <span class="dt">minSize=</span><span class="dv">3</span>, <span class="dt">internFragments=</span><span class="ot">TRUE</span>, <span class="dt">pref=</span><span class="st">&quot;pepK&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt;  -&gt; fragmentSeq : 1 out of 45 fragments not unique</span></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt;  full.pepK.1-11   Nter.pepK.1-3   Nter.pepK.1-4   Nter.pepK.1-5   Nter.pepK.1-6 </span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt;   &quot;KPEPTIDRPEP&quot;           &quot;KPE&quot;          &quot;KPEP&quot;         &quot;KPEPT&quot;        &quot;KPEPTI&quot; </span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt;   Nter.pepK.1-7   Nter.pepK.1-8   Nter.pepK.1-9  Nter.pepK.1-10  Cter.pepK.2-11 </span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt;       &quot;KPEPTID&quot;      &quot;KPEPTIDR&quot;     &quot;KPEPTIDRP&quot;    &quot;KPEPTIDRPE&quot;    &quot;PEPTIDRPEP&quot; </span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt;  Cter.pepK.3-11  Cter.pepK.4-11  Cter.pepK.5-11  Cter.pepK.6-11  Cter.pepK.7-11 </span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt;     &quot;EPTIDRPEP&quot;      &quot;PTIDRPEP&quot;       &quot;TIDRPEP&quot;        &quot;IDRPEP&quot;         &quot;DRPEP&quot; </span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="co">#&gt;  Cter.pepK.8-11  Cter.pepK.9-11 inter.pepK.2-10  inter.pepK.2-4  inter.pepK.2-5 </span></span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="co">#&gt;          &quot;RPEP&quot;           &quot;PEP&quot;     &quot;PEPTIDRPE&quot;           &quot;PEP&quot;          &quot;PEPT&quot; </span></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="co">#&gt;  inter.pepK.2-6  inter.pepK.2-7  inter.pepK.2-8  inter.pepK.2-9 inter.pepK.3-10 </span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co">#&gt;         &quot;PEPTI&quot;        &quot;PEPTID&quot;       &quot;PEPTIDR&quot;      &quot;PEPTIDRP&quot;      &quot;EPTIDRPE&quot; </span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="co">#&gt; inter.pepK.4-10 inter.pepK.5-10 inter.pepK.6-10 inter.pepK.7-10 inter.pepK.8-10 </span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="co">#&gt;       &quot;PTIDRPE&quot;        &quot;TIDRPE&quot;         &quot;IDRPE&quot;          &quot;DRPE&quot;           &quot;RPE&quot; </span></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="co">#&gt;  inter.pepK.3-9  inter.pepK.3-5  inter.pepK.3-6  inter.pepK.3-7  inter.pepK.3-8 </span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="co">#&gt;       &quot;EPTIDRP&quot;           &quot;EPT&quot;          &quot;EPTI&quot;         &quot;EPTID&quot;        &quot;EPTIDR&quot; </span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="co">#&gt;  inter.pepK.4-9  inter.pepK.5-9  inter.pepK.6-9  inter.pepK.7-9  inter.pepK.4-8 </span></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="co">#&gt;        &quot;PTIDRP&quot;         &quot;TIDRP&quot;          &quot;IDRP&quot;           &quot;DRP&quot;         &quot;PTIDR&quot; </span></span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="co">#&gt;  inter.pepK.4-6  inter.pepK.4-7  inter.pepK.5-8  inter.pepK.6-8  inter.pepK.5-7 </span></span>
+<span id="cb6-22"><a href="#cb6-22"></a><span class="co">#&gt;           &quot;PTI&quot;          &quot;PTID&quot;          &quot;TIDR&quot;           &quot;IDR&quot;           &quot;TID&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">## Elaborate output</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>protP2 &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dt">na=</span><span class="kw">names</span>(protP), <span class="dt">se=</span>protP, <span class="dt">ma=</span>wrProteo<span class="op">::</span><span class="kw">convAASeq2mass</span>(protP,<span class="dt">seqName=</span><span class="ot">TRUE</span>))</span>
+<span id="cb7-3"><a href="#cb7-3"></a>pepT1 &lt;-<span class="st"> </span><span class="kw">makeFragments</span>(<span class="dt">protTab=</span>protP2, <span class="dt">minFragSize=</span><span class="dv">3</span>, <span class="dt">maxFragSize=</span><span class="dv">9</span>, <span class="dt">internFra=</span><span class="ot">TRUE</span>)</span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co">#&gt; -&gt; makeFragments -&gt; fragmentSeq : 1 out of 42 fragments not unique</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="co">#&gt;  -&gt; makeFragments :  due to preferential fragmentation sites discard 2 fragments,  61 remain</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">head</span>(pepT1)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="co">#&gt;      no   seq   orig          origNa ty      seqNa       beg end  precAA tailAA</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="co">#&gt; [1,] &quot;49&quot; &quot;PTI&quot; &quot;KPEPTIDRPEP&quot; &quot;pepK&quot; &quot;inter&quot; &quot;pepK.4-6&quot;  &quot;4&quot; &quot;6&quot;  &quot;E&quot;    &quot;D&quot;   </span></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="co">#&gt; [2,] &quot;20&quot; &quot;PEP&quot; &quot;KPEPTIDRPEP&quot; &quot;pepK&quot; &quot;Cter&quot;  &quot;pepK.9-11&quot; &quot;9&quot; &quot;11&quot; &quot;R&quot;    NA    </span></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co">#&gt; [3,] &quot;27&quot; &quot;PEP&quot; &quot;KPEPTIDRPEP&quot; &quot;pepK&quot; &quot;inter&quot; &quot;pepK.2-4&quot;  &quot;2&quot; &quot;4&quot;  &quot;K&quot;    &quot;T&quot;   </span></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="co">#&gt; [4,] &quot;62&quot; &quot;PEP&quot; &quot;CEPEPTRT&quot;    &quot;pepC&quot; &quot;inter&quot; &quot;pepC.3-5&quot;  &quot;3&quot; &quot;5&quot;  &quot;E&quot;    &quot;T&quot;   </span></span>
+<span id="cb8-7"><a href="#cb8-7"></a><span class="co">#&gt; [5,] &quot;40&quot; &quot;EPT&quot; &quot;KPEPTIDRPEP&quot; &quot;pepK&quot; &quot;inter&quot; &quot;pepK.3-5&quot;  &quot;3&quot; &quot;5&quot;  &quot;P&quot;    &quot;I&quot;   </span></span>
+<span id="cb8-8"><a href="#cb8-8"></a><span class="co">#&gt; [6,] &quot;63&quot; &quot;EPT&quot; &quot;CEPEPTRT&quot;    &quot;pepC&quot; &quot;inter&quot; &quot;pepC.4-6&quot;  &quot;4&quot; &quot;6&quot;  &quot;P&quot;    &quot;R&quot;   </span></span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="co">#&gt;      ambig          mass               modSpec</span></span>
+<span id="cb8-10"><a href="#cb8-10"></a><span class="co">#&gt; [1,] NA             &quot;329.194522412891&quot; &quot;&quot;     </span></span>
+<span id="cb8-11"><a href="#cb8-11"></a><span class="co">#&gt; [2,] &quot;duplSequence&quot; &quot;341.158136906591&quot; &quot;&quot;     </span></span>
+<span id="cb8-12"><a href="#cb8-12"></a><span class="co">#&gt; [3,] &quot;duplSequence&quot; &quot;341.158136906591&quot; &quot;&quot;     </span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="co">#&gt; [4,] &quot;duplSequence&quot; &quot;341.158136906591&quot; &quot;&quot;     </span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="co">#&gt; [5,] &quot;duplSequence&quot; &quot;345.153051528691&quot; &quot;&quot;     </span></span>
+<span id="cb8-15"><a href="#cb8-15"></a><span class="co">#&gt; [6,] &quot;duplSequence&quot; &quot;345.153051528691&quot; &quot;&quot;</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a></span>
+<span id="cb8-17"><a href="#cb8-17"></a><span class="kw">dim</span>(pepT1)</span>
+<span id="cb8-18"><a href="#cb8-18"></a><span class="co">#&gt; [1] 61 13</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a></span>
+<span id="cb8-20"><a href="#cb8-20"></a><span class="co">## The repartition between types of fragments :</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a><span class="kw">table</span>(pepT1[,<span class="st">&quot;ty&quot;</span>])</span>
+<span id="cb8-22"><a href="#cb8-22"></a><span class="co">#&gt; </span></span>
+<span id="cb8-23"><a href="#cb8-23"></a><span class="co">#&gt;  Cter  Nter  full inter </span></span>
+<span id="cb8-24"><a href="#cb8-24"></a><span class="co">#&gt;    12    12     1    36</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a></span>
+<span id="cb8-26"><a href="#cb8-26"></a><span class="co">## Types of ambiguities encountered</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a><span class="kw">table</span>(pepT1[,<span class="st">&quot;ambig&quot;</span>])</span>
+<span id="cb8-28"><a href="#cb8-28"></a><span class="co">#&gt; </span></span>
+<span id="cb8-29"><a href="#cb8-29"></a><span class="co">#&gt; duplSequence      isoMass </span></span>
+<span id="cb8-30"><a href="#cb8-30"></a><span class="co">#&gt;            7           10</span></span></code></pre></div>
+<p>Even such a small example gives already 61 possible peptides (without counting modfications). Of course, it is quite common to obatin a high degree of ambiguities with short peptides since they are less likely unqique.</p>
+</div>
+</div>
+<div id="fixed-and-variable-modifications" class="section level2">
+<h2>Fixed And Variable Modifications</h2>
+<p>In real-world biology protein modifcations are common. Conceptually one can distuinguish two cases : With ‘fixed modificatons’ it is presumed that all protein moleculs of a given species (ie sequence) do carry exactely the same modification(s). Alteratively one may suggest that only a portion of the molecules for a given protein-species carry a given modification.</p>
+<p>Fixed modifications do not increase the search space, since a given value corresponding to the change of mass gets added or subtracted. In the case of varaible modifications this increases the search space since the modificed as well as the unmodified mass will be considered when comparig to experimental masses. In particular, when multiple amino-acids on the same protein may get modified alternatively this increases the search space. Then one may consider multiple modifications, for example 0 to 2 out of 5 Serine residues in the protein sequence may carry a phosporylation …</p>
+<p>In order to reduce the apparent complexity, several conceptual compromises have been taken. <em>) The presence of charged amino-acids has been used to dismiss all fragments not containing a charged amino-acid, default has been set to positive charge (K,H and R). </em>) When identifying variable modifications, the non-modified isoform must be identified first to take the variable modification in account.</p>
+</div>
+<div id="basic-identification-including-fixed-modifications" class="section level2">
+<h2>Basic Identification Including Fixed Modifications</h2>
+<p>Now we are ready to compare a list of experimental m/z values to a set of protein sequences …</p>
+<div id="tolerance" class="section level3">
+<h3>Tolerance</h3>
+<p>In mass spectrometry it is common to use relative tolerance-limits when it comes to identification as ‘ppm’. This means that peaks not having any predicted peptides/ions in a predefined ppm-range will be omitted. When the search space gets very crowded, ie when many peptide-fragments are predicted, there is of course a considerable risk that some predicted fragments/ions are so close that multiple predicted peptides/ions have to be consiered in a a given ppm-range.</p>
+</div>
+<div id="identification-example" class="section level3">
+<h3>Identification Example</h3>
+<p>First let’s make a little toy example using a hypothetic protein/peptide sequence. The molecular masses below have been predicted using the <a href="http://prospector.ucsf.edu/prospector/cgi-bin/msform.cgi?form=msproduct">Prospector tool</a> from UCSF. We’ll add than a litle bit of random noise as a simultation for experimental data. The table below is not exhaustive for all potentially occurring fragments, as experimental data would not be expected to be complete either. As modifications to test some cases of loss of water (H20) and loss of ammonia (NH3) were prepared.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># The toy peptide/protein sequnce</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>protP &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">pepK=</span><span class="st">&quot;KPEPTIDRPEP&quot;</span>, <span class="dt">pepC=</span><span class="st">&quot;CEPEPTRT&quot;</span>)</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a>obsMass1 &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dt">a=</span><span class="kw">c</span>(<span class="fl">424.2554</span>,<span class="fl">525.3031</span>,<span class="fl">638.3872</span>,<span class="fl">753.4141</span>,<span class="fl">909.5152</span>,<span class="fl">1006.5680</span>,<span class="fl">1135.6106</span>),</span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="dt">b=</span><span class="kw">c</span>(<span class="fl">452.2504</span>,<span class="fl">553.2980</span>,<span class="fl">666.3821</span>,<span class="fl">781.4090</span>,<span class="fl">937.5102</span>,<span class="fl">1034.5629</span>,<span class="fl">1163.6055</span>),</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="dt">x=</span><span class="kw">c</span>(<span class="fl">524.2463</span>,<span class="fl">639.2733</span>,<span class="fl">752.3573</span>,<span class="fl">853.4050</span>,<span class="fl">950.4578</span>,<span class="fl">1079.5004</span>,<span class="fl">1176.5531</span>),</span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="dt">y=</span><span class="kw">c</span>(<span class="fl">498.2671</span>,<span class="fl">613.2940</span>,<span class="fl">726.3781</span>,<span class="fl">827.4258</span>,<span class="fl">924.4785</span>,<span class="fl">1053.5211</span>,<span class="fl">1150.5739</span>),</span>
+<span id="cb9-8"><a href="#cb9-8"></a>  <span class="dt">bdH=</span><span class="kw">c</span>(<span class="fl">434.2398</span>,<span class="fl">535.2875</span>,<span class="fl">648.3715</span>,<span class="fl">763.3985</span>,<span class="fl">919.4996</span>,<span class="fl">1016.5524</span>,<span class="fl">1145.5949</span>),</span>
+<span id="cb9-9"><a href="#cb9-9"></a>  <span class="dt">ydH=</span><span class="kw">c</span>(<span class="fl">480.2565</span>,<span class="fl">1132.5633</span>,<span class="fl">595.2835</span>,<span class="fl">708.3675</span>,<span class="fl">809.4152</span>,<span class="fl">906.4680</span>,<span class="fl">1035.5106</span>),</span>
+<span id="cb9-10"><a href="#cb9-10"></a>  <span class="dt">bi=</span><span class="kw">c</span>(<span class="fl">498.2307</span>,<span class="fl">583.3198</span>,<span class="fl">583.3198</span>,<span class="fl">611.3148</span>,<span class="fl">680.3726</span>,<span class="fl">712.3624</span>,<span class="fl">712.3624</span>),</span>
+<span id="cb9-11"><a href="#cb9-11"></a>  <span class="dt">bidH=</span><span class="kw">c</span>(<span class="fl">662.3620</span>,<span class="fl">694.3519</span>,<span class="fl">694.3519</span>,<span class="fl">791.4046</span>,<span class="fl">791.4046</span>,<span class="fl">791.4046</span>,<span class="fl">888.4574</span>),</span>
+<span id="cb9-12"><a href="#cb9-12"></a>  <span class="dt">bidN=</span><span class="kw">c</span>(<span class="fl">663.3461</span>,<span class="fl">695.3359</span>,<span class="fl">695.3359</span>,<span class="fl">792.3886</span>,<span class="fl">792.3886</span>,<span class="fl">792.3886</span>,<span class="fl">889.4414</span>),</span>
+<span id="cb9-13"><a href="#cb9-13"></a>  <span class="dt">ai=</span><span class="kw">c</span>(<span class="fl">652.3777</span>,<span class="fl">684.3675</span>,<span class="fl">684.3675</span>,<span class="fl">781.4203</span>,<span class="fl">781.4203</span>,<span class="fl">781.4203</span>,<span class="fl">878.4730</span>) )</span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="kw">rownames</span>(obsMass1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;P&quot;</span>,<span class="st">&quot;T&quot;</span>,<span class="st">&quot;I&quot;</span>,<span class="st">&quot;D&quot;</span>,<span class="st">&quot;R&quot;</span>,<span class="st">&quot;P&quot;</span>,<span class="st">&quot;E&quot;</span>)      <span class="co"># only for N-term (a &amp; b)</span></span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co">## This example contains several iso-mass cases</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="kw">length</span>(obsMass1)</span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="co">#&gt; [1] 70</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="kw">length</span>(<span class="kw">unique</span>(<span class="kw">as.numeric</span>(obsMass1)))</span>
+<span id="cb9-20"><a href="#cb9-20"></a><span class="co">#&gt; [1] 59</span></span></code></pre></div>
+<p>Iso-peptides will show up with the same mass :</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co">## have same mass   </span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co">##       480.2201   DRPE-H2O &amp; y4-H2O</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="co">##       583.3198   PTIDR &amp; TIDRP ;         565.3093    PTIDR-H2O &amp; TIDRP-H2O </span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co">##       809.4152   y7-H2O  &amp; EPTIDRP  </span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="co">##       684.3675   TIDRPE-CO &amp; EPTIDR-CO ; 694.3519    EPTIDR-H2O &amp; TIDRPE-H2O</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co">##       712.3624   TIDRPE &amp; EPTIDR   </span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># Now we&#39;ll add some random noise</span></span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">set.seed</span>(<span class="dv">2020</span>)</span>
+<span id="cb11-3"><a href="#cb11-3"></a>obsMass2 &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(obsMass1)</span>
+<span id="cb11-4"><a href="#cb11-4"></a>obsMass2 &lt;-<span class="st"> </span>obsMass2 <span class="op">+</span><span class="st"> </span><span class="kw">runif</span>(<span class="kw">length</span>(obsMass2), <span class="dt">min=</span><span class="op">-</span><span class="fl">2e-4</span>, <span class="dt">max=</span><span class="fl">2e-4</span>)</span></code></pre></div>
+<p>Now let’s use these numbers as experimental values and compare them to all theoretical values : For example, the peptide-sequences ‘PTIDR’ and ‘TIDRP’ may be derived from our first toy-sequence and contain exactely the same atoms and thus will have iso-masses. Without any further information it is impossible to know which one of them is/was truly present in a given sample. Thus, the corresponding mass will be called an ambiguous identification.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a></span>
+<span id="cb12-2"><a href="#cb12-2"></a>identP1 &lt;-<span class="st"> </span><span class="kw">identifFixedModif</span>(<span class="dt">prot=</span>protP[<span class="dv">1</span>], <span class="dt">expMass=</span>obsMass2, <span class="dt">minFragSize=</span><span class="dv">3</span>, </span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="dt">maxFragSize=</span><span class="dv">7</span>, <span class="dt">modTy=</span><span class="kw">list</span>(<span class="dt">basMod=</span><span class="kw">c</span>(<span class="st">&quot;b&quot;</span>,<span class="st">&quot;y&quot;</span>)))     <span class="co"># should find 10term +10inter</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co">#&gt; -&gt; identifFixedModif -&gt; makeFragments -&gt; fragmentSeq : 1 out of 35 fragments not unique</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="co">#&gt; -&gt; identifFixedModif -&gt; makeFragments :  due to preferential fragmentation sites discard 2 fragments,  33 remain</span></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt;  -&gt; identifFixedModif :  removing 11 out of 33 (initial) peptides not containing any charge-catching residues</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co">#&gt;  -&gt; identifFixedModif : 48 out of 70 experim masses in range of 22 predicted (max 828)</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="co">#&gt; -&gt; identifFixedModif -&gt; findCloseMatch :  note that some names do overlap (beware not to confuse...) !</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="co">#&gt;  -&gt; identifFixedModif :  1st pass: compare 22 predicted (incl 4 ambiguous : isoMass</span></span>
+<span id="cb12-10"><a href="#cb12-10"></a><span class="co">#&gt;      with  48 input (measured) masses, found  16 groups of matches to experimental masses (total=19))</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a> </span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="co">## This function returns a list   </span></span>
+<span id="cb12-13"><a href="#cb12-13"></a><span class="kw">str</span>(identP1)  </span>
+<span id="cb12-14"><a href="#cb12-14"></a><span class="co">#&gt; List of 6</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a><span class="co">#&gt;  $ massMatch  :List of 16</span></span>
+<span id="cb12-16"><a href="#cb12-16"></a><span class="co">#&gt;   ..$ 2 : Named num 0.00668</span></span>
+<span id="cb12-17"><a href="#cb12-17"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;8&quot;</span></span>
+<span id="cb12-18"><a href="#cb12-18"></a><span class="co">#&gt;   ..$ 3 : Named num 0.43</span></span>
+<span id="cb12-19"><a href="#cb12-19"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;9&quot;</span></span>
+<span id="cb12-20"><a href="#cb12-20"></a><span class="co">#&gt;   ..$ 4 : Named num -0.0681</span></span>
+<span id="cb12-21"><a href="#cb12-21"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;10&quot;</span></span>
+<span id="cb12-22"><a href="#cb12-22"></a><span class="co">#&gt;   ..$ 5 : Named num -0.0768</span></span>
+<span id="cb12-23"><a href="#cb12-23"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;11&quot;</span></span>
+<span id="cb12-24"><a href="#cb12-24"></a><span class="co">#&gt;   ..$ 9 : Named num 0.285</span></span>
+<span id="cb12-25"><a href="#cb12-25"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;22&quot;</span></span>
+<span id="cb12-26"><a href="#cb12-26"></a><span class="co">#&gt;   ..$ 19: Named num -0.317</span></span>
+<span id="cb12-27"><a href="#cb12-27"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;43&quot;</span></span>
+<span id="cb12-28"><a href="#cb12-28"></a><span class="co">#&gt;   ..$ 30: Named num [1:2] -0.2007 -0.0225</span></span>
+<span id="cb12-29"><a href="#cb12-29"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;44&quot; &quot;45&quot;</span></span>
+<span id="cb12-30"><a href="#cb12-30"></a><span class="co">#&gt;   ..$ 8 : Named num -0.182</span></span>
+<span id="cb12-31"><a href="#cb12-31"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;23&quot;</span></span>
+<span id="cb12-32"><a href="#cb12-32"></a><span class="co">#&gt;   ..$ 18: Named num -0.126</span></span>
+<span id="cb12-33"><a href="#cb12-33"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;46&quot;</span></span>
+<span id="cb12-34"><a href="#cb12-34"></a><span class="co">#&gt;   ..$ 26: Named num 0.0181</span></span>
+<span id="cb12-35"><a href="#cb12-35"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;47&quot;</span></span>
+<span id="cb12-36"><a href="#cb12-36"></a><span class="co">#&gt;   ..$ 7 : Named num -0.271</span></span>
+<span id="cb12-37"><a href="#cb12-37"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;24&quot;</span></span>
+<span id="cb12-38"><a href="#cb12-38"></a><span class="co">#&gt;   ..$ 17: Named num [1:2] -0.0707 -0.1253</span></span>
+<span id="cb12-39"><a href="#cb12-39"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;48&quot; &quot;49&quot;</span></span>
+<span id="cb12-40"><a href="#cb12-40"></a><span class="co">#&gt;   ..$ 25: Named num [1:2] -0.0707 -0.1253</span></span>
+<span id="cb12-41"><a href="#cb12-41"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;48&quot; &quot;49&quot;</span></span>
+<span id="cb12-42"><a href="#cb12-42"></a><span class="co">#&gt;   ..$ 6 : Named num -0.236</span></span>
+<span id="cb12-43"><a href="#cb12-43"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;25&quot;</span></span>
+<span id="cb12-44"><a href="#cb12-44"></a><span class="co">#&gt;   ..$ 15: Named num 0.13</span></span>
+<span id="cb12-45"><a href="#cb12-45"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;40&quot;</span></span>
+<span id="cb12-46"><a href="#cb12-46"></a><span class="co">#&gt;   ..$ 16: Named num 0.13</span></span>
+<span id="cb12-47"><a href="#cb12-47"></a><span class="co">#&gt;   .. ..- attr(*, &quot;names&quot;)= chr &quot;40&quot;</span></span>
+<span id="cb12-48"><a href="#cb12-48"></a><span class="co">#&gt;  $ preMa      : chr [1:22, 1:14] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb12-49"><a href="#cb12-49"></a><span class="co">#&gt;   ..- attr(*, &quot;dimnames&quot;)=List of 2</span></span>
+<span id="cb12-50"><a href="#cb12-50"></a><span class="co">#&gt;   .. ..$ : chr [1:22] &quot;pepK.1-3.b&quot; &quot;pepK.1-4.b&quot; &quot;pepK.1-5.b&quot; &quot;pepK.1-6.b&quot; ...</span></span>
+<span id="cb12-51"><a href="#cb12-51"></a><span class="co">#&gt;   .. ..$ : chr [1:14] &quot;no&quot; &quot;seq&quot; &quot;orig&quot; &quot;origNa&quot; ...</span></span>
+<span id="cb12-52"><a href="#cb12-52"></a><span class="co">#&gt;  $ pepTab     : chr [1:22, 1:13] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb12-53"><a href="#cb12-53"></a><span class="co">#&gt;   ..- attr(*, &quot;dimnames&quot;)=List of 2</span></span>
+<span id="cb12-54"><a href="#cb12-54"></a><span class="co">#&gt;   .. ..$ : NULL</span></span>
+<span id="cb12-55"><a href="#cb12-55"></a><span class="co">#&gt;   .. ..$ : chr [1:13] &quot;no&quot; &quot;seq&quot; &quot;orig&quot; &quot;origNa&quot; ...</span></span>
+<span id="cb12-56"><a href="#cb12-56"></a><span class="co">#&gt;  $ recalibFact: num 0</span></span>
+<span id="cb12-57"><a href="#cb12-57"></a><span class="co">#&gt;  $ recalibData: NULL</span></span>
+<span id="cb12-58"><a href="#cb12-58"></a><span class="co">#&gt;  $ docTi      : Named num [1:7] 1.6e+09 1.6e+09 1.6e+09 1.6e+09 1.6e+09 ...</span></span>
+<span id="cb12-59"><a href="#cb12-59"></a><span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:7] &quot;ini_identifFixedModif&quot; &quot;makeFragments&quot; &quot;countPotModifAAs&quot; &quot;addMassModif&quot; ...</span></span>
+<span id="cb12-60"><a href="#cb12-60"></a><span class="co">## $masMatch identifies each </span></span>
+<span id="cb12-61"><a href="#cb12-61"></a>  </span></code></pre></div>
+<p>However, due to real-world imprecision during the process of measuring m/z, here we used a 5ppm default tolerance.</p>
+<p>This brings us to one of the reasons why fragmentation is so important in proteomics : Without fragmentation mass spectrometry of entire proteins is in big trouble to resolve most of naturally occuring iso-variants or even related proteins.</p>
+<p>Due to fragmentation numerous/may overlapping fragments will occur and will finally allow reconstructing the most parts of original protein.</p>
+<p>Thank you for you interest in this package. This package is still under development, new functions will be added to the next version.</p>
+</div>
+</div>
+<div id="acknowledgements" class="section level2">
+<h2>Acknowledgements</h2>
+<p>This package would not have been possible without the very dedicated and hard work of my collaborator Huilin Li at Sun Yat-Sen University in China.</p>
+<p>The author wants to acknowledge the support by the <a href="http://www.igbmc.fr/">IGBMC</a> (CNRS UMR 7104, Inserm U 1258, UdS), the <a href="http://proteomics.igbmc.fr/fr/">proteomics platform of the IGBMC</a>, <a href="http://www.cnrs.fr/">CNRS</a>, <a href="http://www.igbmc.fr/">IGBMC</a>, <a href="https://www.unistra.fr">Université de Strasbourg</a> and <a href="https://www.inserm.fr/">Inserm</a>.</p>
+</div>
+<div id="appendix-session-info" class="section level2">
+<h2>Appendix: Session-Info</h2>
+<pre><code>#&gt; R version 4.0.2 (2020-06-22)
+#&gt; Platform: x86_64-w64-mingw32/x64 (64-bit)
+#&gt; Running under: Windows 10 x64 (build 18363)
+#&gt; 
+#&gt; Matrix products: default
+#&gt; 
+#&gt; locale:
+#&gt; [1] LC_COLLATE=C                   LC_CTYPE=French_France.1252   
+#&gt; [3] LC_MONETARY=French_France.1252 LC_NUMERIC=C                  
+#&gt; [5] LC_TIME=French_France.1252    
+#&gt; 
+#&gt; attached base packages:
+#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     
+#&gt; 
+#&gt; other attached packages:
+#&gt; [1] wrTopDownFrag_1.0.2 wrProteo_1.1.4      wrMisc_1.3.0       
+#&gt; 
+#&gt; loaded via a namespace (and not attached):
+#&gt;  [1] compiler_4.0.2  magrittr_1.5    htmltools_0.5.0 tools_4.0.2    
+#&gt;  [5] yaml_2.2.1      stringi_1.4.6   rmarkdown_2.3   knitr_1.29     
+#&gt;  [9] stringr_1.4.0   digest_0.6.25   xfun_0.16       rlang_0.4.7    
+#&gt; [13] evaluate_0.14</code></pre>
+</div>
+
+<script type="text/javascript">
+window.onload = function() {
+  var i, fig = 1, caps = document.getElementsByClassName('caption');
+  for (i = 0; i < caps.length; i++) {
+    var cap = caps[i];
+    if (cap.parentElement.className !== 'figure' || cap.nodeName !== 'P')
+      continue;
+    cap.innerHTML = '<span>Figure ' + fig + ':</span> ' + cap.innerHTML;
+    fig++;
+  }
+  fig = 1;
+  caps = document.getElementsByTagName('caption');
+  for (i = 0; i < caps.length; i++) {
+    var cap = caps[i];
+    if (cap.parentElement.nodeName !== 'TABLE') continue;
+    cap.innerHTML = '<span>Table ' + fig + ':</span> ' + cap.innerHTML;
+    fig++;
+  }
+}
+</script>
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
