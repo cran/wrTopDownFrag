@@ -2,7 +2,7 @@
 % Please edit documentation in R/fragmentSeq.R
 \name{fragmentSeq}
 \alias{fragmentSeq}
-\title{Fragment protein or peptide sequence}
+\title{Fragment Protein Or Peptide Sequence}
 \usage{
 fragmentSeq(
   sequ,
@@ -13,6 +13,7 @@ fragmentSeq(
   keepRedSeqs = TRUE,
   prefName = NULL,
   silent = FALSE,
+  debug = FALSE,
   callFrom = NULL
 )
 }
@@ -33,13 +34,19 @@ fragmentSeq(
 
 \item{silent}{(logical) suppress messages}
 
-\item{callFrom}{(character) allow easier tracking of message(s) produced}
+\item{debug}{(logical) additional messages for debugging}
+
+\item{callFrom}{(character) allow easier tracking of messages produced}
 }
 \value{
-numeric vector with mass
+This function returns a numeric vector with the (neutral) mass of fragmented peptides
 }
 \description{
 Makes internal/terminal fragments of a SINGLE peptide/protein input (as single letter amino-acid code) and returns list of all possible sequences ($full, $Nter, $Cter, $inter).
+}
+\details{
+Note: Thus function can handle only 1 sequence at each run !
+Note: The mass values returned correspond to neutral peptides. If you are looking for ions, you need to adjust masses to the repsective ion-charcteriostics (adding H+, etc).
 }
 \examples{
 fragmentSeq("ABCDE")

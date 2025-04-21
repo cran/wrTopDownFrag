@@ -2,13 +2,14 @@
 % Please edit documentation in R/combinateAllAndSum.R
 \name{combinateAllAndSum}
 \alias{combinateAllAndSum}
-\title{Full combinatorial and cumulative values}
+\title{Full Combinatorial And Cumulative Values}
 \usage{
 combinateAllAndSum(
   nMax,
   modVal,
   notSingle = NULL,
   silent = TRUE,
+  debug = FALSE,
   callFrom = NULL
 )
 }
@@ -21,26 +22,32 @@ combinateAllAndSum(
 
 \item{silent}{(logical) suppress messages}
 
-\item{callFrom}{(character) allow easier tracking of message(s) produced}
+\item{debug}{(logical) additional messages for debugging}
+
+\item{callFrom}{(character) allows easier tracking of messages produced}
 }
 \value{
-named (concatenated names of modVal) numeric vector
+This functions returns a named (concatenated names of modVal) numeric vector
 }
 \description{
-Use for all preparing all combinations of non-compulsatory, ie variable, mass modifications
+Use this function for preparing all combinations of non-compulsatory, ie variable, mass modifications.
 Variable modifications may or may not be present. Thus, for a given amino-acid with a variable modification two versions of the molecular weight need to be considered.
-Most (variable) modifications are linked to a type of amino acid, like serine-residues for phosphorlylation.
-Thus in this case, each instance of the amino acid in question may or may not be modified. 
-So, for example if there are 2 serines, 0, 1 or 2 phosphorylation modifications may be present. 
-For this reason the is the argument \code{nMax} to stay within biologically relevant ranges (external knowledge) and reduce complexity significantly.    
+}
+\details{
+Most (variable) modifications are linked to a type of amino acid, like serine- or thyrosine residues for phosphorlylation.
+Thus in this case, each instance of the amino acids S or T may or may not be modified. 
+So, for example if there are 2 serines on a given peptide/protein, 0, 1 or 2 phosphorylation modifications may be present. 
+For this reason there is an argument called \code{nMax} to allow staying within biologically relevant ranges (external knowledge) and allowing to reduce complexity significantly.    
+In the case of phosporylations, the total number of actually phosphoylated amino-acids is typically way below the number of S and T residues in pthe initial sequence.
 Some modifications are exclusive to others, argument \code{notSingle} : An (artificially occuring) de-phosphorylation event during fragmentation can only happen if the amino acid was already phosphorylated in the first place.
 }
 \examples{
-## to follow easily the results, hypothetical mass-modification values were chosen
-mo1 <- c(a=10, b=1, c=0.1, d=0.01); nMa1 <- c(1,2,0,3)
-combinateAllAndSum(nMa1, mo1)
-## # like 'b' for phospho & 'd' for de-phospho (which can't happen without phospho event)
-combinateAllAndSum(nMa1, mo1, notSingle=c("d","b"))    
+uniqCo <- matrix(c(1,1,1,0,1,1), nrow=2, dimnames=list(c("PTI","KPE"),c("d","p","h"))  )
+massModV <- c(d= -18.01056, p= 79.96633, h= -18.01056)
+## for 1st peptide
+combinateAllAndSum(uniqCo[1,], massModV, notSingle=c("q","p"))
+## for all peptides
+apply(uniqCo, 1, combinateAllAndSum, massModV, notSingle=c("q","p"))
 }
 \seealso{
 \code{\link[wrMisc]{convToNum}}

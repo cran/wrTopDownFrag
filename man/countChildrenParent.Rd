@@ -2,12 +2,13 @@
 % Please edit documentation in R/countChildrenParent.R
 \name{countChildrenParent}
 \alias{countChildrenParent}
-\title{Identify Children/Parent settings as a+b=c}
+\title{Identify Children/Parent Settings As a+b=c}
 \usage{
 countChildrenParent(
   fragments,
   output = "count",
   silent = FALSE,
+  debug = FALSE,
   callFrom = NULL
 )
 }
@@ -18,10 +19,12 @@ countChildrenParent(
 
 \item{silent}{(logical) suppress messages}
 
-\item{callFrom}{(character) allows easier tracking of message(s) produced}
+\item{debug}{(logical) additional messages for debugging}
+
+\item{callFrom}{(character) allows easier tracking of messages produced}
 }
 \value{
-either numeric vector with cumulated counts (corresponding to rows of \code{fragments}) or list with $count and $detailIndex (list with indexes refering to non-redundant entries of all a+b=c settings identified)
+This functions returns either numeric vector with cumulated counts (corresponding to rows of \code{fragments}) or list with $count and $detailIndex (list with indexes refering to non-redundant entries of all a+b=c settings identified)
 }
 \description{
 This functions helps identifying fragments ('parent') characterized by a start- and end-position, that got split into 2  'children' fragments. 
@@ -46,5 +49,5 @@ countChildrenParent(frag3c, out="det")
 
 }
 \seealso{
-\code{\link[wrMisc]{simpleFragFig}} for graphical representation,\code{\link{countSameStartEnd}}; for building longer consecutive trees (without identification of 'parent') \code{\link[wrMisc]{buildTree}} and  \code{\link{contribToContigPerFrag}}
+\code{\link[wrMisc]{simpleFragFig}} ; for building longer consecutive trees (without identification of 'parent') \code{\link[wrMisc]{buildTree}}
 }

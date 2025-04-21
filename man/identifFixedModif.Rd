@@ -12,7 +12,7 @@ identifFixedModif(
   indexStart = 1,
   suplPepTab = NULL,
   internFra = TRUE,
-  filtChargeCatch = TRUE,
+  chargeCatchFilter = TRUE,
   maxMod = c(p = 3, h = 1, k = 1, o = 1, m = 1, n = 1, u = 1, r = 1, s = 1),
   modTy = NULL,
   specModif = NULL,
@@ -21,7 +21,6 @@ identifFixedModif(
   limitIdent = 5,
   filtAmbiguous = FALSE,
   recalibrate = FALSE,
-  chargeCatchFilter = TRUE,
   massTy = "mono",
   prefFragPat = NULL,
   silent = FALSE,
@@ -32,7 +31,7 @@ identifFixedModif(
 \arguments{
 \item{prot}{(character) amino-acid sequene of peptide or protein}
 
-\item{expMass}{(numeric) erperimental masses to identify peptides from}
+\item{expMass}{(numeric) experimental masses to identify peptides from}
 
 \item{minFragSize}{(integer) min number of AA residues for considering peptide fragments}
 
@@ -42,9 +41,9 @@ identifFixedModif(
 
 \item{suplPepTab}{(matrix) additional peptides to be add to theoretical peptides}
 
-\item{internFra}{(logical) decide whether internal fragments should be cosiered}
+\item{internFra}{(logical) decide whether internal fragments should be consiered}
 
-\item{filtChargeCatch}{(logical) by default removing of all fragments not containing a (polar) charge-cathing residue}
+\item{chargeCatchFilter}{(logical) by default remove all peptides not containing charge-catching (polar) AAs (K, R, H, defined via \code{.chargeCatchingAA()} )}
 
 \item{maxMod}{(integer) maximum number of residue modifications to be consiered in fragments (values >1 will increase complexity and RAM consumption)}
 
@@ -62,8 +61,6 @@ identifFixedModif(
 
 \item{recalibrate}{(logical or numeric) may be direct recalibration-factor (numeric,length=1), if 'TRUE'  fresh determination of 'recalibFact' or 'FALSE' (no action);  final recalibration-factor used exported in result as $recalibFact}
 
-\item{chargeCatchFilter}{(logical) optionally remove all peptides not containing charge-catch AAs (K, R, H, defined via \code{.chargeCatchingAA()} )}
-
 \item{massTy}{(character) 'mono' or 'average'}
 
 \item{prefFragPat}{(numeric) pattern for preferential fragmentation (see also Haverland 2017), if \code{NULL} default will be taken (in function \code{evalIsoFragm}) from \code{.prefFragPattern()}}
@@ -75,26 +72,29 @@ identifFixedModif(
 \item{callFrom}{(character) allow easier tracking of message(s) produced}
 }
 \value{
-list, ie result of massMatch() on 'pepTab' and 'expMass'
+This function returns a list with $massMatch (list of exerimental peptides matching to one or more predicted), $preMa (predicted ions, including fixed modif), $pepTab (predicted neutral peptides, wo modifications), $expMa (experimental mass from input), $recalibFact (recalibration factor as from input), $docTi (time for calculations)
 }
 \description{
-Identify peptide/protein fragment based on experimental m/z values 'expMass' for given range of aa-length.
+Identify peptide/protein fragments based on experimental m/z values 'expMass' for given range of aa-length.
 Internally all possible fragments will be predicted and their mass compared to the experimental values (argument \code{expMass}).
 }
+\details{
+The main matching results are in output$massMatch : This list has one entry for each predicted mass where some matches were found. 
+Thus, the names of the list-elements design the index from argument \code{expMass}. 
+Each list-element contains a numeric vector giving the difference observed to predicted, the names design the unique predicted peptide index/number from output$preMa[,"no"]
+
+The main element of the output is the $massMatch -list, which is in the format of  \code{\link[wrMisc]{findCloseMatch}}.
+Thus, the list-elements names represent the line-number of mass-predictions and the values the delta-mass and their names the position of the initial query.
+}
 \examples{
-protP <- c(protP="PEPTIDEKR")
-obsMassX <- cbind(a=c(199.1077,296.1605,397.2082,510.2922,625.3192),
-  b=c(227.1026,324.1554,425.2031,538.2871,653.3141),
-  x=c(729.2937,600.2511,503.1984,402.1507,289.0666),
-  y=c(703.3145,574.2719,477.2191,376.1714,263.0874))
-rownames(obsMassX) <- c("E","P","T","I","D")       # all 1 & 7 ions not included
-identP1 <- identifFixedModif(prot=protP, expMass=as.numeric(obsMassX), minFragSize=2, 
-  maxFragSize=7,modTy=list(basMod=c("b","y")))     # looks ok
-identP2 <- identifFixedModif(prot=protP, expMass=as.numeric(obsMassX), minFragSize=2, 
- maxFragSize=7, modTy=list(basMod=c("a","x"), varMod=c("h","o","r","m")))
- head(identP1$preMa,n=17)     # predicted masses incl fixed modif
- head(identP2$preMa,n=17)     # predicted masses incl fixed modif 
+pro3 <- "HLVDEPQNLIK"
+exp3 <- c( b4=465.2451, b5=594.2877, b6=691.3404,  y7=841.4772, y6=712.4347, y5=615.3819)
+ident3 <- identifFixedModif(prot=pro3, expMass=exp3, minFragSize=4, 
+  maxFragSize=60, modTy=list(basMod=c("b","y")))
+ident3$massMatch                                                                                              
+## as human readable table:
+ident3$preMa[ ident3$preMa[,"no"] \%in\% (names(ident3$massMatch)),]
 }
 \seealso{
-\code{\link{makeFragments}}
+\code{\link{makeFragments}}, \code{\link{identifVarModif}}, \code{\link{identifyPepFragments}}, \code{\link[wrMisc]{findCloseMatch}}
 }

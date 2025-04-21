@@ -6,16 +6,19 @@
 #' @param modTy (character) list of modification types to be considered
 #' @param knownMods (character) optonal custom list of known modifications, default from \code{AAfragSettings(outTy="all")$knownMods} 
 #' @param silent (logical) suppress messages
-#' @param callFrom (character) allow easier tracking of message(s) produced
-#' @return corrected list of mixed of variable and fixed modifications ($basMod, $varMod and $varMo2) 
+#' @param debug (logical) additional messages for debugging
+#' @param callFrom (character) allows easier tracking of messages produced
+#' @return This function returns the corrected list of mixed of variable and fixed modifications ($basMod, $varMod and $varMo2) 
 #' @seealso \code{\link{AAfragSettings}}
 #' @examples
 #' modTy1 <- list(basMod=c("b","y","h"),varMod=c("p","o","q"))
 #' checkModTy(modTy1)
 #' @export
-checkModTy <- function(modTy,knownMods=NULL,silent=TRUE,callFrom=NULL){
+checkModTy <- function(modTy, knownMods=NULL, silent=TRUE, debug=FALSE, callFrom=NULL){
   ## check & complete
   fxNa <- wrMisc::.composeCallName(callFrom, newNa="checkModTy")
+  if(!isTRUE(silent)) silent <- FALSE
+  if(isTRUE(debug)) silent <- FALSE else debug <- FALSE
   chMod <- which(names(modTy) %in% c("basMod","varMod","varMo2") & !(sapply(modTy, function(x) is.null(x) | identical(x,""))))
   if(length(chMod) <1) stop(" Problem with 'modTy' : either incorrect names or empty !")
   # check for repeated
@@ -34,11 +37,30 @@ checkModTy <- function(modTy,knownMods=NULL,silent=TRUE,callFrom=NULL){
     if(any(chMod) & !"p" %in% modTy$basMod) modTy$varMo2 <- modTy$varMo2[which(!chMod)] }
   modTy }
 
+
+#' Check Modification Type
+#'
+#' Check Modification Type
+#' 
+#' @param modTy (character) list of modification types to be considered
+#' @param knownMods (character) optonal custom list of known modifications, default from \code{AAfragSettings(outTy="all")$knownMods} 
+#' @param phoDePho (character) names of modifications that may be de-phosphorylated
+#' @param modTyGr (character) groups of modifications to consider (defaults used both 'basMod' and 'varMod')
+#' @param silent (logical) suppress messages
+#' @param debug (logical) additional messages for debugging
+#' @param callFrom (character) allows easier tracking of messages produced
+#' @return This function returns the corrected list of mixed of variable and fixed modifications ($basMod, $varMod and $varMo2) 
+#' @seealso \code{\link{AAfragSettings}}
+#' @examples
+#' modTy1 <- list(basMod=c("b","y","h"),varMod=c("p","o","q"))
+#' .checkModTy(modTy1, knownMods=c("a","b","h","o","p","q","y"))
 #' @export
-.checkModTy <- function(modTy,knownMods,phoDePho=c("p","q"),modTyGr=c("basMod","varMod"),silent=FALSE,callFrom=NULL) {
+.checkModTy <- function(modTy, knownMods, phoDePho=c("p","q"), modTyGr=c("basMod","varMod"), silent=FALSE, debug=FALSE, callFrom=NULL) {
   ## checking of 'modTy'
   ## return verified/corrected 'modTy'
   fxNa <- wrMisc::.composeCallName(callFrom, newNa=".checkModTy")
+  if(!isTRUE(silent)) silent <- FALSE
+  if(isTRUE(debug)) silent <- FALSE else debug <- FALSE
   chModFx <- function(mod, possMod=knownMods) {
     ch1 <- which(mod %in% unlist(possMod))
     if(length(ch1) >0) mod[ch1] else "" }
@@ -50,20 +72,20 @@ checkModTy <- function(modTy,knownMods=NULL,silent=TRUE,callFrom=NULL){
     if(modTyGr[1] %in% names(modTyIni)) {
       modTy[[1]] <- chModFx(modTyIni[[modTyGr[1]]])
       if(identical(phoDePho %in% modTy[[1]], c(FALSE,TRUE))) {
-        if(!silent) message(callFrom,"de-phosphorylation without phosphorylation not realistic -> omit")
+        if(!silent) message(callFrom,"De-phosphorylation without phosphorylation not realistic -> omit")
         modTy[[1]] <- modTy[[1]][which(!modTy[[1]] %in% phoDePho[2])] } }
     if(modTyGr[2] %in% names(modTyIni)) {
       modTy[[2]] <- chModFx(modTyIni[[modTyGr[2]]])
       ## include de-phosho when phospho in $varMod
       if(identical(phoDePho %in% modTy[[2]], c(TRUE,FALSE))) {
-        if(!silent) message(callFrom,"add de-phosphorylation to optional modifications")
+        if(!silent) message(callFrom,"Add de-phosphorylation to optional modifications")
         modTy[[2]] <- c(modTy[[2]],phoDePho[2])}
       if(identical(phoDePho %in% modTy[[2]], c(FALSE,TRUE))) {
-        if(!silent) message(callFrom,"add phosphorylation to optional modifications (since de-phospho found)")
+        if(!silent) message(callFrom,"Add phosphorylation to optional modifications (since de-phospho found)")
         modTy[[2]] <- c(phoDePho[1],modTy[[2]])}
       modTy$varMo2 <- if(phoDePho[2] %in% modTy[[2]]) modTy[[2]][which(!modTy[[2]] ==phoDePho[2])] else modTy[[2]]  #variant: wo de-phospho for single modif
     }
   } else {modTy <- list(""); names(modTy) <- modTyGr[1];
-    if(!silent) message(callFrom,"no fragmentation/modification types recognized, calculate as unmodified 'pep'")}}
+    if(!silent) message(callFrom,"No fragmentation/modification types recognized, calculate as unmodified 'pep'")}}
   modTy }
         

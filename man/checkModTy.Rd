@@ -4,7 +4,13 @@
 \alias{checkModTy}
 \title{Check & complete mixed of variable and fixed modifications}
 \usage{
-checkModTy(modTy, knownMods = NULL, silent = TRUE, callFrom = NULL)
+checkModTy(
+  modTy,
+  knownMods = NULL,
+  silent = TRUE,
+  debug = FALSE,
+  callFrom = NULL
+)
 }
 \arguments{
 \item{modTy}{(character) list of modification types to be considered}
@@ -13,10 +19,12 @@ checkModTy(modTy, knownMods = NULL, silent = TRUE, callFrom = NULL)
 
 \item{silent}{(logical) suppress messages}
 
-\item{callFrom}{(character) allow easier tracking of message(s) produced}
+\item{debug}{(logical) additional messages for debugging}
+
+\item{callFrom}{(character) allows easier tracking of messages produced}
 }
 \value{
-corrected list of mixed of variable and fixed modifications ($basMod, $varMod and $varMo2)
+This function returns the corrected list of mixed of variable and fixed modifications ($basMod, $varMod and $varMo2)
 }
 \description{
 Check & complete settings for mixed of variable and fixed modifications.

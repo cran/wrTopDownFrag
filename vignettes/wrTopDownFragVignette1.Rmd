@@ -10,7 +10,7 @@ output:
     highlight: null
     number_sections: no
 vignette: >
-  %\VignetteIndexEntry{wrProteoVignette1}
+  %\VignetteIndexEntry{wrTopDownFragVignette1}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -24,7 +24,8 @@ This technqiue returns primarily 'm/z' (mass over charge) measures, in most case
 
 Since mass spectrometry is rather well suited to identifying small molecules, it has become common practice to first digest proteins into smaller units (ie peptides), 
 which can be easily identified by mass spetrometry. This technique is referred to as __"bottom-up" proteomics__. 
-Further high energy fragmentation of proteins or peptides directly within the mass spetrometer also helps very much improving the identification rate (MS-MS or MS2).
+Additional high energy fragmentation of (proteins or) peptides directly within the mass spetrometer also helps very much improving the identification rate (MS-MS or MS2).
+However, with a large number of peptiodes that can be identified this way it remains challenging to assign correcltly all these peptides to proteins and variants thereof. 
 
 To overcome some of the drawbacks associated with the bottom-up approach, more recent developments of mass spectrometers allow the 
 identification of full length proteins (from samples with few proteins). This approach is called __"top-down proteomics"__ (see also 
@@ -37,16 +38,17 @@ The pattern of resulting fragments for a given precursor protein/peptide allows 
 provides further valuable information about the (3-dimensional) conformation of the initial proteins (see also [Haverland et al, 2017](https://doi.org/10.1007/s13361-017-1635-x)).
 
 This project got started to help analyzing internal fragments from [FT-ICR mass-spectrometry](https://en.wikipedia.org/wiki/Fourier-transform_ion_cyclotron_resonance).
-At the time of beginning none or only very limited tools were available for this task (this situation is changing since 2019).
-Since there is already software available for transforming initial lists of m/z values into monoisotopic values, the aim was to continue further to the identification of m/z peaks after a deconvolution step to assign the most likely peptide/proptein sequence.
+At the time of beginning none or only very limited tools were available for this task (this situation has been changing since 2019).
+Because there is already software available for transforming initial lists of m/z values into monoisotopic values, here the aim was to continue further to the identification of m/z peaks after a deconvolution step to assign the most likely peptide/proptein sequence.
 Please refer eg to [Wikipedia: monoisotopic mass](https://en.wikipedia.org/wiki/Monoisotopic_mass) for details on molecular mass and deconvolution. 
 Initial developments were performed based on data from [FT-ICR mass-spectrometry](https://en.wikipedia.org/wiki/Fourier-transform_ion_cyclotron_resonance), but the overal concept may be applied to any kind of mass-spectrometry data. 
 
-When developing this package particular attention was brought to the fact that entire proteins may very well still carry embedded ions in catalytic cores or other rare modifications.
+When developing this package particular attention was brought to the fact that entire proteins may very well still carry embedded ions in catalytic cores or other (rare) modifications.
 With the tools pesented here, the link between parent- and children fragments was not further taken into account since we did not expect 100 percent pure parent species entering the fragmentation step.
 
 In summary, this package aims to provide tools for the identification of proteins from monoisotopic m/z lists, and in particular,
  to consider and identify all possible internal fragments resulting from fragmentation performed during mass-spectromery analysis.
+Please note that this version will soon be updated to further address issues with identification of predicted fragments.
 
 
 To get started, we need to load the packages [wrMisc](https://CRAN.R-project.org/package=wrMisc) and 
@@ -81,9 +83,11 @@ The section __$modChem__ describes/defines exactely how many molecules will be a
 
 Molecular (mono-isotopic) masses of the atomes used here are taken the package [wrProteo](https://CRAN.R-project.org/package=wrProteo), intially they were taken from [Unimod](http://www.unimod.org/masses.html). They can be easily updated, if in the future, (mono-isotopic) molecular masses will be determined with higher precision (ie more digits).
 
+
 ## Obtaining Molecular Mass For Chemical Structures (using wrProteo)
 
-The package [wrProteo](https://CRAN.R-project.org/package=wrProteo) is used to convert summed chemical formulas into molecular mass.
+The package [wrProteo](https://CRAN.R-project.org/package=wrProteo) is used to convert summed chemical formulas into molecular masses.
+The masse values returned account for non-charged molecules.
 ```{r massDeFormula1, echo=TRUE}
 # Standard way to obtain the (monoisotopic) mass of water (H20) or a phosphorylation (PO3)
 # Note that the number a molecule appears must be written in front of the molecule (no number means one occurance)
@@ -97,7 +101,7 @@ massDeFormula(c("2HO", "P3O"))
 Atomic masses can be calulated either as 'average mass' or 'monoisotopic mass' ([Wikipedia: monoisotopic mass](https://en.wikipedia.org/wiki/Monoisotopic_mass)), the latter is commonly used in mass-spectrometry and will be used by default in this package.
 
 
-### Molecular mass of peptides and proteins
+### Molecular Mass Of Peptides And Proteins
 
 At this level we can compute the expected mass of uncharged proteins/peptides as defined by their size.
 Of couse, protein isomers (ie same total composition but different sequence) get the same mass.  
@@ -111,27 +115,27 @@ convAASeq2mass(protP)
 
 ```
 
-As mentinned, this package assumes that experimental values have already been deconvoluted, ie that only the mono-charged peak provided and isotopic patterns have been reduced to the main representative isotope. 
-In line with this assumption, default predictions are mono-isotopic masses.
+As mentioned, this package assumes that experimental values have already been deconvoluted, ie that only the mass of the mono-charged peak provided and isotopic patterns have been reduced to the main representative isotope. 
+In line with this assumption, default predictions are mono-isotopic masses (but can be changed via the argument _massTy_).
 
 
-## Fragmenting a Peptide/Protein -Sequence 
+## Fragmenting Peptide/Protein -Sequences 
 
 With 'Fragmentation' techniques we refer to technqiues like shooting electrons or IR-waves allowing to break larger molecules into smaller molecules (of different composition).
+
 In order to check if fragmentation yields random cleavage or raher directed distribution of cleavage sites,
 it is necessary to predict all possible cleavage sites.
-
 The complexity of this simple task increases about exponentially with protein size.
-At this level, the complexity increases so much, that only a few (longer) full length proteins can be treated at once within a reasonable amount of time.
-With large proteins (more than 600 aa length) this may consume considerable amounts of RAM.
-When designing this package care has been taken to run infractructure intensive as efficent as possible, but working with complex samples/proteomes it is still beyond technical limits.
+In fact, the complexity increases so much, that only a few (longer) full length proteins can be treated at once within a reasonable amount of time.
+With large proteins (more than 600 aa length) this may consume considerable amounts of RAM !
+When designing this package care has been taken to run infractructure intensive tasks as efficent as possible, but working with complex samples/proteomes it is still beyond technical limits.
 
-Here a very simplified view on the theoretical number of terminal and internal fragments.
-Fixed modifications do not change the number of expected fragments
-Note, that this simplification does not include variable modifications (see also the next section). 
+Below a very simplified view on the theoretical number of terminal and internal fragments is shown.
+Fixed modifications do not change the number of expected fragments (as they only shift the mass).
+Note, that this simplification for the plot below does not include variable modifications (see also the next section). 
 
 ```{r nFragm1, out.width="150%", out.heigth="80%", echo=TRUE}
-marks <- data.frame(name=c("Ubiquitin\n76aa","Glutamate dehydrogenase 1\n501aa"),length=c(76,501))
+marks <- data.frame(name=c("Ubiquitin\n76aa","Glutamate dehydrogenase 1\n501aa"), length=c(76,501))
 layout(matrix(1:2,ncol=2))
 plotNTheor(x=20:750, log="", mark=marks)
 plotNTheor(x=20:750, log="xy", mark=marks)
@@ -139,19 +143,30 @@ mtext("log/log scale", cex=0.8, line=0.1)
   
 ```
 
-### Fragmenting a protein sequence
+### Fragmenting a Protein Sequence
 
-Random cleavege for a sample collection of proteins can be obtained using the functions \code{fragmentSeq()} or \code{makeFragments()}
+Random cleavege for collection of proteins can be obtained using the functions \code{fragmentSeq()} or \code{makeFragments()}
+
+*Please note, that a number of functions of this package return mass-values for theoretical non-charged peptides !*
+So when comparing with other ressources (like Prospector), please keep in mind that most functions (eg _makeFragments()_ ) do not directly calculate/predict masses for 'b-' or 'y-' ions.
+Using _atomicMasses()_ and/or _convAASeq2mass()_ you can easily adjust initially predicted neutral masses to respective ions.
+Fragmentation procedures may give different type of ions, depending on equipent and specific settings. 
+Thus, very important input from the user is needed to adjust initial neutral fragments into to expected types of ions.
+ 
+When predicting actual ions you should also consider that many reactions may have internal loss of water (or other neutral loss reactions).
+Thus in such instances the mass of H2O should be subtracted, too.
+
 
 ```{r fragmentSeq1, echo=TRUE}
 protP <- c(pepK="KPEPTIDRPEP", pepC="CEPEPTRT")
 ## Basic output 
 fragmentSeq(protP[1], minSize=3, internFragments=TRUE, pref="pepK")
 ```
+As mentioned above, the functions _fragmentSeq()_ or _makeFragments()_ produce *neutral peptide-mass* predictions (and not at final ions).
 
 ```{r makeFragments1, echo=TRUE}
 ## Elaborate output
-protP2 <- cbind(na=names(protP), se=protP, ma=wrProteo::convAASeq2mass(protP,seqName=TRUE))
+protP2 <- cbind(na=names(protP), se=protP, ma=wrProteo::convAASeq2mass(protP, seqName=TRUE))
 pepT1 <- makeFragments(protTab=protP2, minFragSize=3, maxFragSize=9, internFra=TRUE)
 ```
 
@@ -168,8 +183,187 @@ table(pepT1[,"ambig"])
 
 ```
 
-Even such a small example gives already 61 possible peptides (without counting modfications).
-Of course, it is quite common to obatin a high degree of ambiguities with short peptides since they are less likely unqique.
+Even such a small example gives already 61 possible peptides (without counting modifications).
+Of course, it is quite common to obtain a high degree of ambiguities with short peptides since they are less likely to contain unqique sequences.
+
+
+
+## Example 1 : Single Peptide Fragmentation and Comparison To Prospector
+
+Let's look at the sequence HLVDEPQNLIK . 
+This sequence matches to _Bos taurus_ Albumin (B0JYQ0, B0JYQ0_BOVIN), aa402 - aa412 from Bos tauris Albumin Accession AAI51547.1 or (Albumin precursor) P02769.4 or NP_851335.1; or 3V03_A (aa378  - 388) .
+
+
+```{r example1a, echo=TRUE}
+
+Alb.seq <- "HLVDEPQNLIK" 
+(Alb.mass <- wrProteo::convAASeq2mass("HLVDEPQNLIK", massTy="mono")) 
+## Now the mass for the MH+ ion
+(Alb.MHp <- wrProteo::convAASeq2mass("HLVDEPQNLIK", massTy="mono") + wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["e","mono"]) 
+```
+
+From Prospector we get for the mono-mass : 1305.7161
+```{r example1b, echo=TRUE}
+## delta prospector
+Alb.MHp - 1305.7161
+```
+
+We observe a delta mass to [ProteinProspector tool](https://prospector.ucsf.edu/prospector/mshome.htm) of 2.681479e-05 . 
+
+Next, we'll fragment this sequence
+```{r example1c, echo=TRUE}
+AlbFrag <- makeFragments(Alb.seq, minFragSize=2, maxFragSize=17, internFra=FALSE)
+head(AlbFrag)
+AlbFrag[which(AlbFrag[,"ty"]=="Nter"), c("seq","mass","beg","ty")]
+```
+
+and predict b & y ions (we have to transform neutral peptides into the corresponding ions)
+```{r example1d, echo=TRUE}
+Alb.b <- as.numeric(AlbFrag[which(AlbFrag[,"ty"]=="Nter"),c("mass")]) - 1*wrProteo::.atomicMasses()["O","mono"] - wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["e","mono"] 
+Alb.y <- as.numeric(AlbFrag[which(AlbFrag[,"ty"]=="Cter"),c("mass")]) + wrProteo::.atomicMasses()["H","mono"] - 1*wrProteo::.atomicMasses()["e","mono"] 
+
+Alb.a <- as.numeric(AlbFrag[which(AlbFrag[,"ty"]=="Nter"),c("mass")]) - wrProteo::.atomicMasses()["C","mono"] - 2*wrProteo::.atomicMasses()["O","mono"] - wrProteo::.atomicMasses()["H","mono"] - 1*wrProteo::.atomicMasses()["e","mono"] 
+Alb.x <- as.numeric(AlbFrag[which(AlbFrag[,"ty"]=="Cter"),c("mass")]) + 1*wrProteo::.atomicMasses()["C","mono"] + 1*wrProteo::.atomicMasses()["O","mono"] - 1*wrProteo::.atomicMasses()["H","mono"] - 1*wrProteo::.atomicMasses()["e","mono"] 
+
+AlbFrag.int <- makeFragments(Alb.seq, minFragSize=2, maxFragSize=17, internFra=TRUE)
+dim(AlbFrag.int)
+```
+
+Comparison to Prospector
+```{r example1e, echo=TRUE}
+## Masses from Prospector for a,x,b- and y-ions
+Alb.prs.a <- c(223.1553, 322.2238,	437.2507,	566.2933,	663.3461,	791.4046,	905.4476,	1018.5316,	1131.6157)
+Alb.prs.x <- rev(c(1194.6365,	1081.5524, 982.4840, 867.4571, 738.4145, 641.3617, 513.3031, 399.2602, 286.1761)) #, 173.0921))
+
+Alb.prs.b <- c(251.1503, 350.2187, 465.2456, 594.2882, 691.3410, 819.3995, 933.4425, 1046.5265, 1159.6106)
+Alb.prs.y <- rev(c(1168.6572, 1055.5732, 956.5047, 841.4778, 712.4352, 615.3824, 487.3239, 373.2809, 260.1969))
+
+cbind(wr.b=Alb.b, d.b=Alb.b - Alb.prs.b, wr.y=Alb.y, d.y= Alb.y - Alb.prs.y)
+```
+
+It seems the b & y masses from Prospector do not account for the single positive charge (ie a single electron's mass may not have been removed, since the delta-mass corresponds approximately to an eletron's mass) .
+
+
+
+
+
+
+
+
+
+
+## Example 2 : A Detailed Toy Example For Predicting Fragments
+
+Let us work on this short protein / peptide as example :
+```{r makeFragmentsB1, echo=TRUE}
+prot1 <- "RTVAAPSVFIFPPSDEQLKSG"
+```
+
+Let's make this a MH+ ion
+```{r makeFragmentsB2, echo=TRUE}
+(prot1.MHp <- wrProteo::convAASeq2mass(prot1, massTy="mono") + wrProteo::.atomicMasses()["H","mono"] -wrProteo::.atomicMasses()["e","mono"])
+ 
+## Besides, lateron we'll also need the mass of water
+(H2O.mass <- 2*wrProteo::.atomicMasses()["H","mono"]  + wrProteo::.atomicMasses()["O","mono"])
+```
+We observe a delta mass of -4.099151e-05 Da when comparing to ProteinProspector (due to rounding at the last digit of Prospector).
+
+
+### Terminal Fragments
+
+For (further) fragmentation you can get the following table for ourt protein "RTVAAPSVFIFPPSDEQLKSG" from the [ProteinProspector tool](https://prospector.ucsf.edu/prospector/mshome.htm) .
+Let's assume only b- and y-ions are produced.
+
+```{r makeFragmentsB3, echo=TRUE}
+##      b			     	      y
+##     ---	  1 	R	21	   ---
+##  258.1561	2 	T	20	2090.0804
+##  357.2245	3 	V	19	1989.0328
+##  428.2616	4 	A	18	1889.9644  <== use b4 as example
+##  499.2987	5 	A	17	1818.9272  <=    and corresp y17
+##       ...  .    ...        ...   
+```
+
+Please remember, when breaking proteins there is also loss of water (part of loss of neutrals).
+Thus, to obtain the mass of the b-ion 'RTVA' using wrTopDown we need to subtract mass.water and add mass.H+ to the peptide 'RTVA' (which resumes in subtracting 1 'H', 1 'O' and 1 electron).
+
+```{r makeFragmentsB4, echo=TRUE}
+(prot1.b4.MHp <- wrProteo::convAASeq2mass("RTVA", massTy="mono") - wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["O","mono"] - wrProteo::.atomicMasses()["e","mono"]) 
+```
+Now we have a delta mass to Prospector of -6e-6 Da.
+
+For the correpsonding b-ion :
+```{r makeFragmentsB5, echo=TRUE}
+(prot1.y18.MHp <- wrProteo::convAASeq2mass("APSVFIFPPSDEQLKSG", massTy="mono") + wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["e","mono"])  
+```
+Above, we have a delta mass to Prospector of 4.1e-5 Da.
+
+
+Thus, the full ion = b-ion + y-ion - proton, for checking we'll subtract (y18.MHp + y18.MHp -H20 + proton) from MHp
+```{r makeFragmentsB6, echo=TRUE}
+(prot1.MHp) - (prot1.b4.MHp + prot1.y18.MHp - wrProteo::.atomicMasses()["H","mono"] + wrProteo::.atomicMasses()["e","mono"])     
+```
+We can see the error is marginally small (4e-13).
+
+Next, let's predict/produce all fragments using the function _makeFragments()_ :
+```{r makeFragmentsB7, echo=TRUE}
+prot1Frag <- makeFragments(prot1, minFragSize=4, maxFragSize=17, internFra=FALSE)
+prot1Frag[c(2,27),]            # our prevous b- & y-ion (as neutral peptide mass)
+```
+
+Since so far we have neutral peptide masses, we'll convert the first N-ter fragment as b-ion :  pept.mass - H20 + H+
+```{r makeFragmentsB8, echo=TRUE}
+as.numeric(prot1Frag[2,"mass"]) - H2O.mass + wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["e","mono"]  
+```
+
+Similarly, we'll convert the corresponding C-ter fragment as y-ion :  pept.mass + H+
+```{r makeFragmentsB9, echo=TRUE}
+as.numeric(prot1Frag[27,"mass"]) + wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["e","mono"]  
+```
+
+
+
+### Internal Fragments
+
+From our initial protein/peptide _prot1_ (ie RTVAAPSVFIFPPSDEQLKSG) let's look at the possible fragment "PSDEQL":
+
+From Prospector we get the following internal fragment(s) for "PSDEQL" (amongst many other internal fragments)
+```{r makeFragmentsC1, echo=TRUE}
+## Prospector internal fragments for "PSDEQL":
+## Internal Sequence      	b	        a	    b-NH3	    b-H2O
+##             ...        ...       ...       ...       ...
+##          IFPPSD   657.3243  629.3293       ---  639.3137
+##          PSDEQL	 670.3042	 642.3093  653.2777  652.2937
+```
+
+Now we predict all fragments -including internal fragments- for this protein/peptide.
+```{r makeFragmentsC2, echo=TRUE}
+prot1FragInt <- makeFragments(prot1, minFragSize=4, maxFragSize=17, internFra=TRUE)
+dim(prot1FragInt)
+```
+Thus, we get 158 fragments predicted.
+Please note, that fragments from _makeFragments()_ are given as neutral peptide mass (without loss of neutrals) !
+
+
+Now we can check which one corresponds to the sequence "PSDEQL"  (and store its index).
+Then, we display a few lines of fragments (with our target peptide at last position):
+
+```{r makeFragmentsC3, echo=TRUE}
+PSDEQL.idx <- which(prot1FragInt[,2] =="PSDEQL")                                   
+prot1FragInt[PSDEQL.idx -(1:0),]
+```
+If we transform the (neutral) mass for "PSDEQL" as 'b'-fragment (-H20 +H) we can match the mass of 670.30 given by Prospector (we have a delta of -4.6e-5 Da)
+
+```{r makeFragmentsC4, echo=TRUE}
+(PSDEQL.MH <- as.numeric(prot1FragInt[PSDEQL.idx,"mass"]) - H2O.mass + wrProteo::.atomicMasses()["H","mono"])
+(PSDEQL.MHp <- as.numeric(prot1FragInt[PSDEQL.idx,"mass"]) - H2O.mass + wrProteo::.atomicMasses()["H","mono"] - wrProteo::.atomicMasses()["e","mono"])
+
+c(Prospector=670.3042) - c(PSDEQL.MH, PSDEQL.MHp)
+```
+Please note, that the values from the table we obtained from Prospector lists in column 'b' values that rather to correspond to MH fragments and not to MH+ fragment-ions.
+
+
+
 
 
 ## Fixed And Variable Modifications
@@ -188,11 +382,15 @@ default has been set to positive charge (K,H and R).
 *) When identifying variable modifications, the non-modified isoform must be identified first to take the variable modification in account.
 
 
+
+
 ## Basic Identification Including Fixed Modifications
 
 Now we are ready to compare a list of experimental m/z values to a set of protein sequences ...
 
+
 ### Tolerance
+
 In mass spectrometry it is common to use relative tolerance-limits when it comes to identification as 'ppm'.
 This means that peaks not having any predicted peptides/ions in a predefined ppm-range will be omitted.
 When the search space gets very crowded, ie when many peptide-fragments are predicted, there is of course a considerable risk 
@@ -200,8 +398,12 @@ that some predicted fragments/ions are so close that multiple predicted peptides
 
 
 ### Identification Example
-First let's make a little toy example using a hypothetic protein/peptide sequence.  The molecular masses below have been predicted using the [Prospector tool](http://prospector.ucsf.edu/prospector/cgi-bin/msform.cgi?form=msproduct) from UCSF. We'll add than a litle bit of random noise as a simultation for experimental data. The table below is not exhaustive for all potentially occurring fragments, as experimental data would not be expected to be complete either.
+
+First let's make a little toy example using a hypothetic protein/peptide sequence.  The molecular masses below have been predicted using the [Prospector tool](https://prospector.ucsf.edu/prospector/cgi-bin/msform.cgi?form=msproduct) from UCSF. We'll add than a litle bit of random noise as a simultation for experimental data. The table below is not exhaustive for all potentially occurring fragments, as experimental data would not be expected to be complete either.
 As modifications to test some cases of loss of water (H20) and loss of ammonia (NH3) were prepared.
+
+Please remember, that _makeFragments()_ predicts neutral fragments. Thus, in case of terminal fragments you need to adjust masses accordingly.
+However, if internal fragments were generated via the same processus (eg assuming only b- and y- ions were generated) on both N- and C- terminus, you don't need to add corrective factors besides adding an H+ (if you were working in positive mode) to the predicted mass.
 
 
 ```{r toyData1, echo=TRUE}
@@ -240,7 +442,7 @@ Iso-peptides will show up with the same mass :
 
 
 ```{r toyData3, echo=TRUE}
-# Now we'll add some random noise
+# Now we'll add some random noise (to mimick experimental data)
 set.seed(2020)
 obsMass2 <- as.numeric(obsMass1)
 obsMass2 <- obsMass2 + runif(length(obsMass2), min=-2e-4, max=2e-4)
@@ -251,10 +453,8 @@ For example, the peptide-sequences 'PTIDR' and 'TIDRP' may be derived from our f
 Without any further information it is impossible to know which one of them is/was truly present in a given sample. 
 Thus, the corresponding mass will be called an ambiguous identification.
 
-```{r identifFixedModif1, echo=TRUE}
-
-identP1 <- identifFixedModif(prot=protP[1], expMass=obsMass2, minFragSize=3, 
-  maxFragSize=7, modTy=list(basMod=c("b","y")))     # should find 10term +10inter
+```{r identifFixedModif2, echo=TRUE}
+identP1 <- identifFixedModif(prot=protP[1], expMass=obsMass2, minFragSize=3, maxFragSize=7, modTy=list(basMod=c("b","y")))     # should find 10term +10inter
  
 ## This function returns a list   
 str(identP1)  
@@ -262,28 +462,52 @@ str(identP1)
   
 ```
 
+The matches/identifications in more readable format :
+
+```{r identifFixedModif2b, echo=TRUE}
+identP1$preMa[ which(identP1$preMa[,"no"] %in% (names(identP1$massMatch))),c("seq","orig","ty","beg","end","precAA","finMass","mod")] 
+```
+
+
+
+### Final Thoughts For Calculating Fragments
+
+As mentioned, several functions (like _makeFragments()_ ) calculate mass for *uncharged fragments*. 
+The type (and resulting mass) of final ions depends on fragmentation conditions (and energy).
+In case of *terminal ions*, you should pay attention to adjusting to whatever type of ion you're expecting and *adjust masses accordingly*.
+
+When it comes to *internal ions*, you may not have to adjust masses besides adding an H+ (when detecting in positive mode and having deconvoluted to MH+), 
+if the respective internal ions were generated via the *same fragmention process* (eg only b- & y- breaks).
+
+If you really want to consider both b- & y- as well as a- & x- reactions the same time, you'll have to predict all combinations thereof (since you might have different reaction-families on each end of the peptides) and this will increase the number of fragments to be considered considerably !
+
+Variable modifications can be predicted, but they increase the complexity of final comparisons, thus it is suggested only to consider them if you are realy expecting such modifications.
+If you are convinced that in your reactions have frequent additional (variable) loss of NH3, you should expand the outcome of makeFragments() accordingly 
+(however quickly increasing the complexity...).
+
+
 
 
 
 However, due to real-world imprecision during the process of measuring m/z, here we used a 5ppm default tolerance.
 
 This brings us to one of the reasons why fragmentation is so important in proteomics : 
-Without fragmentation mass spectrometry of entire proteins is in big trouble to resolve most of naturally occuring iso-variants or even related proteins.
+Without fragmentation mass spectrometry of entire proteins may be easily in trouble to resolve most of naturally occuring iso-variants or even related proteins.
 
-Due to fragmentation numerous/may overlapping fragments will occur and will finally allow reconstructing the most parts of original protein.
+Due to fragmentation numerous overlapping fragments will/may occur and will finally allow reconstructing the most parts of original protein.
 
  
 
  
 
 Thank you for you interest in this package.
-This package is still under development, new functions will be added to the next version.
+This package is still under development, new functions may be added to the next version.
 
 
 ## Acknowledgements
 This package would not have been possible without the very dedicated and hard work of my collaborator Huilin Li at Sun Yat-Sen University in China.
 
-The author wants to acknowledge the support by the [IGBMC](http://www.igbmc.fr/) (CNRS UMR 7104, Inserm U 1258, UdS), the [proteomics platform of the IGBMC](http://proteomics.igbmc.fr/fr/), [CNRS](http://www.cnrs.fr/), [IGBMC](http://www.igbmc.fr/), [Université de Strasbourg](https://www.unistra.fr) and [Inserm](https://www.inserm.fr/).
+The author wants to acknowledge the support by the [IGBMC](https://www.igbmc.fr/) (CNRS UMR 7104, Inserm U 1258, UdS), the [proteomics platform of the IGBMC](https://www.igbmc.fr/en/plateformes-technologiques/translate-to-english-proteomique), [CNRS](http://www.cnrs.fr/), [Universite de Strasbourg](https://www.unistra.fr) and [Inserm](https://www.inserm.fr/).
 
 
 ## Appendix: Session-Info

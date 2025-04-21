@@ -2,13 +2,14 @@
 % Please edit documentation in R/evalIsoFragm.R
 \name{evalIsoFragm}
 \alias{evalIsoFragm}
-\title{Evaluate selected lines of pepTab (iso-mass) for preferential cutting sites}
+\title{Evaluate Selected Lines Of PepTab (iso-mass) For Preferential Cutting Sites}
 \usage{
 evalIsoFragm(
   z,
   prefFragPat = NULL,
   seqCol = "seq",
   silent = FALSE,
+  debug = FALSE,
   callFrom = NULL
 )
 }
@@ -21,10 +22,12 @@ evalIsoFragm(
 
 \item{silent}{(logical) suppress messages}
 
-\item{callFrom}{(character) allows easier tracking of message(s) produced}
+\item{debug}{(logical) additional messages for debugging}
+
+\item{callFrom}{(character) allow easier tracking of messages produced}
 }
 \value{
-line ID-numbers (pepTab[,"no"]) for those below median score (ie to remove from pepTab) or NULL if nothing to remove due to preferential fragmentation
+This function returns line ID-numbers (pepTab[,"no"]) for those below median score (ie to remove from pepTab) or NULL if nothing to remove due to preferential fragmentation
 }
 \description{
 Evaluate selected lines of pepTab (iso-mass) for preferential cutting sites. Such sites are taken by default from \code{.prefFragPattern()} simplified from a publication 

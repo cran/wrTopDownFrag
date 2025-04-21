@@ -2,7 +2,7 @@
 % Please edit documentation in R/countPotModifAAs.R
 \name{countPotModifAAs}
 \alias{countPotModifAAs}
-\title{Make table with counts of potential modification sites}
+\title{Make Table With Counts of Potential Modification Sites}
 \usage{
 countPotModifAAs(
   pepTab,
@@ -43,7 +43,7 @@ Note: if multiple N-or C-term modifs, then only the first is shown in resulting 
 protP2 <- c(mesp="MESPEPTIDES", pepe="PEPEPEP")
 pepTab1 <- makeFragments(protTab=protP2, minFra=6, internFr=TRUE, massTy="mono")
 cou1 <- countPotModifAAs(pepTab=pepTab1, modTy=list(basMod=c("b","y"),
-  varMod=c("p","h")), debug=FALSE)
+  varMod=c("p","h")))
 modTy2 <- list(basMod=c("b","y","h"), varMod=c("x","p","o","q","e","j"))
 cou2 <- countPotModifAAs(pepTab=pepTab1, modTy=modTy2)
 }

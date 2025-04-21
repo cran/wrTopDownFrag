@@ -20,7 +20,7 @@
 #' plotNTheor(x=20:750, log="", mark=marks)
 #' @export
 ## here simple function to plot the number of theoretical fragments, assume just b- & y- fragments
-plotNTheor <- function(x,tit="Number of term and intern fragm",xlab="Number of aa",ylab="",col=2:3,log="",mark=NULL,cexMark=0.75) {
+plotNTheor <- function(x, tit="Number of term and intern fragm",xlab="Number of aa",ylab="",col=2:3,log="",mark=NULL,cexMark=0.75) {
   ## plot number of theoretical fragments
   nTerm <- function(x) (x-1)*2                                   # terminal fragments  
   nInte <- function(x)  sapply(x, function(y) sum((y-2):1))      # internal fragments

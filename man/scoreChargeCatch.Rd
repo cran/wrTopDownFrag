@@ -2,7 +2,7 @@
 % Please edit documentation in R/scoreChargeCatch.R
 \name{scoreChargeCatch}
 \alias{scoreChargeCatch}
-\title{Scoring of charge catching potential for peptides}
+\title{Scoring Of Charge Catching Potential For Peptides}
 \usage{
 scoreChargeCatch(
   resTab,
@@ -10,6 +10,7 @@ scoreChargeCatch(
   scale01 = TRUE,
   chargeMode = "pos",
   silent = FALSE,
+  debug = FALSE,
   callFrom = NULL
 )
 }
@@ -25,17 +26,19 @@ if this argument has any other value, than all charged amino-acids (K,R,H, S,T,N
 
 \item{silent}{(logical) suppress messages}
 
-\item{callFrom}{(character) allow easier tracking of message(s) produced}
+\item{debug}{(logical) additional messages and objects exportet to current session for debugging}
+
+\item{callFrom}{(character) allow easier tracking of messages produced}
 }
 \value{
-numeric vector with score for each peptide of resTab (even if \code{scale01=TRUE} minimum may be >0 if all peptides do contain charge-catching AAs)
+This function returns a numeric vector with score for each peptide of resTab (even if \code{scale01=TRUE} minimum may be >0 if all peptides do contain charge-catching AAs)
 }
 \description{
 Make score based on cumulative search for AA with given potential to catch charge (H+, or optionally any charge).
 Note : at current cumulative scoring large peptides may get priviliged.
 }
 \examples{
-resTa <- matrix(c(1:4,"PEPTID","PEPTIK","PEPTRK","AGV"), ncol=2,
+resTa <- matrix(c(1:4, "PEPTID","PEPTIK","PEPTRK","AGV"), ncol=2,
   dimnames=list(NULL,c("predInd","seq"))) 
 scoreChargeCatch(resTa)
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/makeFragments.R
 \name{makeFragments}
 \alias{makeFragments}
-\title{Make terminal and internal fragments from proteins}
+\title{Make Terminal And Internal Fragments From Proteins}
 \usage{
 makeFragments(
   protTab,
@@ -22,7 +22,8 @@ makeFragments(
 )
 }
 \arguments{
-\item{protTab}{(character or matrix) named vector of protein-seqences to fragment or matrix (character) with lines for initial proteins/peptides, cols as name/sequence/mass}
+\item{protTab}{(character or matrix) named vector of protein-seqences to fragment or 
+or, matrix with 1st column 'ma' with mass and 2nd column 'se' with protein-/peptide-sequence (optionally sequence(s) also as rownames or 3rd column with 'trivial' names)}
 
 \item{minFragSize}{(integer) minimum number of amino-acids for being considered}
 
@@ -46,9 +47,9 @@ makeFragments(
 
 \item{silent}{(logical) suppress messages}
 
-\item{debug}{(logical) for bug-tracking: more/enhanced messages}
+\item{debug}{(logical) additional messages for debugging}
 
-\item{callFrom}{(character) allow easier tracking of message(s) produced}
+\item{callFrom}{(character) allow easier tracking of messages produced}
 }
 \value{
 matrix with fragment sequence, mass, start- and end-position, heading and tailing AA (or NA if terminal fragment)
@@ -56,11 +57,15 @@ matrix with fragment sequence, mass, start- and end-position, heading and tailin
 \description{
 Makes terminal and internal fragments based on protein-sequence and present as matrix including heading and/or tailing amino-acid or theoretical molecular mass of all fragments.
 As the number of theoretically possible fragments increases with the size of the peptide/protein treated it is recommended to adopt arguments like \code{masFragSize} to 
-realizstic values for the type of mass spectrometer used, since efficient filtering will reduce considerably the amount of memory (RAM) needed and will improve overal performance.
+realistic values for the type of mass spectrometer used, since efficient filtering will reduce considerably the amount of memory (RAM) needed and will improve overal performance.
 }
 \examples{
 protP <- c(protP="PEPTIDE")
 pepT1 <- makeFragments(protTab=protP, minFragSize=2, maxFragSize=9, internFra=TRUE)
+tail(pepT1)
+
+protP2 <- cbind(se="PEPTIDE", ma="1304.7088503626")
+pepT2 <- makeFragments(protTab=protP2, minFragSize=2, maxFragSize=9, internFra=TRUE)
 tail(pepT1)
 }
 \seealso{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/addMassModif.R
 \name{addMassModif}
 \alias{addMassModif}
-\title{Add modifications to peptide mass}
+\title{Add Modifications To Peptide Mass}
 \usage{
 addMassModif(
   cou,
@@ -36,7 +36,7 @@ addMassModif(
 
 \item{basVarMod}{(character) toggle if fixed ('basMod') or variable ('varMod') modificatons should be calculated}
 
-\item{massTy}{(character) default 'mono'}
+\item{massTy}{(character) 'mono' or 'average'}
 
 \item{knownMods}{(list) optional custom definition whoch modification is N-term, etc (see \code{\link{AAfragSettings}}}
 
@@ -46,16 +46,18 @@ addMassModif(
 
 \item{silent}{(logical) suppress messages}
 
-\item{debug}{(logical) for bug-tracking: more/enhanced messages and intermediate objects written in global name-space}
+\item{debug}{(logical) additional messages for debugging}
 
-\item{callFrom}{(character) allows easier tracking of message(s) produced}
+\item{callFrom}{(character) allows easier tracking of messages produced}
 }
 \value{
-list of $pepTab (table of peptide as single charge positive ions), $abc ('representative' list of all combinations to add). Main result in $pepTab
+This functions returns a list containing $pepTab (table of peptide as single charge positive ions), $abc ('representative' list of all combinations to add). Main result in $pepTab
 }
 \description{
 Adjust/add mass for modifications from 'modTy' to all peptides in 'pepTab' based on count 'cou' of occurances of modifications :
 Either fixed or variable modifications will be added to the mass of initial peptides from argument \code{papTab}.
+}
+\details{
 Terminal ionization (like 'b' or 'y' -fragments) is treated as fixed modification and the resulting masses will correspond to standard mono-protonated ions.
 Since variable and fixed modification types can't be run in a single instance, the function has to get calles twice, it is recommended to always start with the fixed modfications,
 In the case of fixed modifications (like defining 'b' or 'y' fragments) neutral peptide masses should be given to add the corresponding mass-shift (and to obtain mono-protonated ions).
